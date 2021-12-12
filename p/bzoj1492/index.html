@@ -1,0 +1,299 @@
+<!doctype html><html lang=en-us>
+<head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Cash"><title>bzoj1492</title>
+<link rel=canonical href=https://www.miaowh.com/p/bzoj1492/>
+<link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="bzoj1492">
+<meta property="og:description" content="Cash">
+<meta property="og:url" content="https://www.miaowh.com/p/bzoj1492/">
+<meta property="og:site_name" content="miao">
+<meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-12-12T00:00:00+00:00"><meta property="article:modified_time" content="2021-12-12T00:00:00+00:00">
+<meta name=twitter:title content="bzoj1492">
+<meta name=twitter:description content="Cash">
+</head>
+<body class="article-page has-toc">
+<script>(function(){const a='StackColorScheme';localStorage.getItem(a)||localStorage.setItem(a,"auto")})()</script><script>(function(){const b='StackColorScheme',a=localStorage.getItem(b),c=window.matchMedia('(prefers-color-scheme: dark)').matches===!0;a=='dark'||a==='auto'&&c?document.documentElement.dataset.scheme='dark':document.documentElement.dataset.scheme='light'})()</script>
+<div class="container main-container flex
+extended">
+<div id=article-toolbar>
+<a href=https://www.miaowh.com class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg>
+<span>返回</span>
+</a>
+</div>
+<main class="main full-width">
+<article class=main-article>
+<header class=article-header>
+<div class=article-details>
+<header class=article-category>
+<a href=/categories/%E9%A2%98%E8%A7%A3/>
+题解
+</a>
+</header>
+<h2 class=article-title>
+<a href=/p/bzoj1492/>bzoj1492</a>
+</h2>
+<h3 class=article-subtitle>
+Cash
+</h3>
+<footer class=article-time>
+<div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Dec 12, 2021</time>
+</div>
+</footer>
+</div>
+</header>
+<section class=article-content>
+<h2 id=题意>题意</h2>
+<p>股市中有两种金券A和B，每天都会有个成交价格$a_i,b_i$</p>
+<p>每天可以做无限次操作。</p>
+<p>操作分为两类：</p>
+<ol>
+<li>按当天固定比例$c_i$购买金券。 即每天都会有个比例$c_i$，若要买k元的金卷，那么保证购入的A卷的数量比B卷的数量等于$c_i$</li>
+<li>按任意相同比例卖出金卷，即同时要卖出百分之x的金卷。</li>
+</ol>
+<p>如果你一开始有S元，那么请问n天后，最多能获得多少钱？</p>
+<p>拥有的卷的数量为实数。</p>
+<p>$1 \leq n \leq 1e5$</p>
+<h2 id=分析>分析</h2>
+<p>$dp[i]$:表示第i天所能获得的最大金钱。</p>
+<p>$x[i]$表示第i天最多能获得的A卷数量， $y[i]$表示第i天最多能获得的B卷数量</p>
+<p>$$dp[i] = Max(x[j] * a[i] + y[j] * b[i]), j \in [1,i-1]$$</p>
+<p>如果决策k优于决策j，那么</p>
+<p>$$(x[j] - x[k])a[i] &lt; (y[k] - y[j])b[i]$$</p>
+<p>不妨设$x[k] > x[j]$,那么</p>
+<p>$$\frac{y[k] - y[j]}{x[k] - x[j]} > -\frac{a[i]}{b[i]}$$</p>
+<p>因此根据斜率优化dp的知识，我们知道需要维护一个$x[i]$递增的，并且斜率递减的队列。</p>
+<p>同时由于不等式右边并没有单调性，因此我们需要在队列里二分。 但这个队列有点难维护（貌似还要手写平衡树 （ 我会补的！ ） 因此我们的CDQ分治就要登场啦！</p>
+<hr>
+<p>定义$solve(l,r)$是计算出$[l,r]$的答案(dp值)。</p>
+<p>那么我先计算$solve(l,mid)$</p>
+<p>然后用$[l,mid]$的结果算一下对$[mid+1,r]$的贡献</p>
+<p>然后再计算$solve(mid+1,r)$</p>
+<p>是不是就是$solve(l,r)$了呢？</p>
+<p>（这大概就是cdq分治了</p>
+<p>那么$[l,mid]$对$[mid+1,r]$的贡献怎么算呢？</p>
+<p>我们将$[l,mid]$的元素按$x$排序，保证了$x$的递增</p>
+<p>然后将$[mid+1,r]$的元素按$-\frac{a[i]}{b[i]}$从小到大排序，这样保证了不等式右边的单调性。</p>
+<p>这样的话我们就可以用单调队列优化了！ 维护一个斜率递减的单调队列，$O(nlogn)$即可解决问题。</p>
+<hr>
+<p>看了一下网上别人的代码，发现还可以优化。 不需要排序，可以将$O(nlogn)$降为$O(n)$</p>
+<p>一开始就将数组按$-\frac{a[i]}{b[i]}$排序， 然后在$solve(mid+1,r)$解决之后，再将$[l,r]$按$x$从小到大排序。</p>
+<h2 id=代码>代码</h2>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=c1>// ybmj
+</span><span class=c1></span><span class=cp>#include</span> <span class=cpf>&lt;bits/stdc++.h&gt;</span><span class=cp>
+</span><span class=cp></span><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+<span class=cp>#define lson (rt &lt;&lt; 1)
+</span><span class=cp>#define rson (rt &lt;&lt; 1 | 1)
+</span><span class=cp>#define lson_len (len - (len &gt;&gt; 1))
+</span><span class=cp>#define rson_len (len &gt;&gt; 1)
+</span><span class=cp>#define pb(x) push_back(x)
+</span><span class=cp>#define clr(a, x) memset(a, x, sizeof(a))
+</span><span class=cp>#define mp(x, y) make_pair(x, y)
+</span><span class=cp></span><span class=k>typedef</span> <span class=kt>long</span> <span class=kt>long</span> <span class=n>ll</span><span class=p>;</span>
+<span class=k>typedef</span> <span class=n>pair</span><span class=o>&lt;</span><span class=kt>int</span><span class=p>,</span> <span class=kt>int</span><span class=o>&gt;</span> <span class=n>pii</span><span class=p>;</span>
+<span class=k>typedef</span> <span class=n>pair</span><span class=o>&lt;</span><span class=n>ll</span><span class=p>,</span> <span class=n>ll</span><span class=o>&gt;</span> <span class=n>pll</span><span class=p>;</span>
+<span class=cp>#define my_unique(a) a.resize(distance(a.begin(), unique(a.begin(), a.end())))
+</span><span class=cp>#define my_sort_unique(c) (sort(c.begin(), c.end())), my_unique(c)
+</span><span class=cp></span><span class=k>const</span> <span class=kt>double</span> <span class=n>PI</span> <span class=o>=</span> <span class=n>acos</span><span class=p>(</span><span class=o>-</span><span class=mf>1.0</span><span class=p>);</span>
+<span class=k>const</span> <span class=kt>int</span> <span class=n>INF</span> <span class=o>=</span> <span class=mh>0x3f3f3f3f</span><span class=p>;</span>
+<span class=k>const</span> <span class=kt>int</span> <span class=n>NINF</span> <span class=o>=</span> <span class=mh>0xc0c0c0c0</span><span class=p>;</span>
+<span class=k>const</span> <span class=kt>double</span> <span class=n>eps</span> <span class=o>=</span> <span class=mf>1e-8</span><span class=p>;</span>
+<span class=k>const</span> <span class=kt>int</span> <span class=n>maxn</span> <span class=o>=</span> <span class=mf>1e5</span> <span class=o>+</span> <span class=mi>5</span><span class=p>;</span>
+<span class=k>struct</span> <span class=nc>P</span> <span class=p>{</span>
+    <span class=kt>double</span> <span class=n>a</span><span class=p>,</span> <span class=n>b</span><span class=p>,</span> <span class=n>r</span><span class=p>,</span> <span class=n>k</span><span class=p>,</span> <span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>id</span><span class=p>;</span>
+    <span class=kt>bool</span> <span class=k>operator</span><span class=o>&lt;</span><span class=p>(</span><span class=k>const</span> <span class=n>P</span> <span class=o>&amp;</span><span class=n>A</span><span class=p>)</span> <span class=k>const</span> <span class=p>{</span> <span class=k>return</span> <span class=n>k</span> <span class=o>&gt;</span> <span class=n>A</span><span class=p>.</span><span class=n>k</span><span class=p>;</span> <span class=p>}</span>
+<span class=p>};</span>
+<span class=n>P</span> <span class=n>p</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>cpy</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+<span class=kt>double</span> <span class=n>dp</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+<span class=kt>int</span> <span class=n>q</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+<span class=kr>inline</span> <span class=kt>double</span> <span class=nf>slope</span><span class=p>(</span><span class=kt>int</span> <span class=n>j</span><span class=p>,</span> <span class=kt>int</span> <span class=n>k</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>fabs</span><span class=p>(</span><span class=n>p</span><span class=p>[</span><span class=n>j</span><span class=p>].</span><span class=n>x</span> <span class=o>-</span> <span class=n>p</span><span class=p>[</span><span class=n>k</span><span class=p>].</span><span class=n>x</span><span class=p>)</span> <span class=o>&lt;</span> <span class=n>eps</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>p</span><span class=p>[</span><span class=n>k</span><span class=p>].</span><span class=n>y</span> <span class=o>-</span> <span class=n>p</span><span class=p>[</span><span class=n>j</span><span class=p>].</span><span class=n>y</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>)</span>
+            <span class=k>return</span> <span class=mf>1e10</span><span class=p>;</span>
+        <span class=k>else</span>
+            <span class=k>return</span> <span class=o>-</span><span class=mf>1e9</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=p>(</span><span class=n>p</span><span class=p>[</span><span class=n>j</span><span class=p>].</span><span class=n>y</span> <span class=o>-</span> <span class=n>p</span><span class=p>[</span><span class=n>k</span><span class=p>].</span><span class=n>y</span><span class=p>)</span> <span class=o>/</span> <span class=p>(</span><span class=n>p</span><span class=p>[</span><span class=n>j</span><span class=p>].</span><span class=n>x</span> <span class=o>-</span> <span class=n>p</span><span class=p>[</span><span class=n>k</span><span class=p>].</span><span class=n>x</span><span class=p>);</span>
+<span class=p>}</span>
+<span class=kt>void</span> <span class=nf>solve</span><span class=p>(</span><span class=kt>int</span> <span class=n>l</span><span class=p>,</span> <span class=kt>int</span> <span class=n>r</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>l</span> <span class=o>==</span> <span class=n>r</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>dp</span><span class=p>[</span><span class=n>l</span><span class=p>]</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>l</span> <span class=o>-</span> <span class=mi>1</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>l</span><span class=p>]);</span>
+        <span class=n>p</span><span class=p>[</span><span class=n>l</span><span class=p>].</span><span class=n>y</span> <span class=o>=</span> <span class=n>dp</span><span class=p>[</span><span class=n>l</span><span class=p>]</span> <span class=o>/</span> <span class=p>(</span><span class=n>p</span><span class=p>[</span><span class=n>l</span><span class=p>].</span><span class=n>a</span> <span class=o>*</span> <span class=n>p</span><span class=p>[</span><span class=n>l</span><span class=p>].</span><span class=n>r</span> <span class=o>+</span> <span class=n>p</span><span class=p>[</span><span class=n>l</span><span class=p>].</span><span class=n>b</span><span class=p>);</span>
+        <span class=n>p</span><span class=p>[</span><span class=n>l</span><span class=p>].</span><span class=n>x</span> <span class=o>=</span> <span class=n>p</span><span class=p>[</span><span class=n>l</span><span class=p>].</span><span class=n>y</span> <span class=o>*</span> <span class=n>p</span><span class=p>[</span><span class=n>l</span><span class=p>].</span><span class=n>r</span><span class=p>;</span>
+        <span class=k>return</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=kt>int</span> <span class=n>m</span> <span class=o>=</span> <span class=n>l</span> <span class=o>+</span> <span class=n>r</span> <span class=o>&gt;&gt;</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>l1</span> <span class=o>=</span> <span class=n>l</span><span class=p>,</span> <span class=n>l2</span> <span class=o>=</span> <span class=n>m</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>l</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>r</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>id</span> <span class=o>&lt;=</span> <span class=n>m</span><span class=p>)</span>
+            <span class=n>cpy</span><span class=p>[</span><span class=n>l1</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+        <span class=k>else</span>
+            <span class=n>cpy</span><span class=p>[</span><span class=n>l2</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+    <span class=p>}</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>l</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>r</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>cpy</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+    <span class=n>solve</span><span class=p>(</span><span class=n>l</span><span class=p>,</span> <span class=n>m</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=n>L</span> <span class=o>=</span> <span class=n>l</span><span class=p>,</span> <span class=n>R</span> <span class=o>=</span> <span class=n>l</span> <span class=o>-</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>l</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>m</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>while</span> <span class=p>(</span><span class=n>L</span> <span class=o>&lt;</span> <span class=n>R</span> <span class=o>&amp;&amp;</span> <span class=n>slope</span><span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>R</span> <span class=o>-</span> <span class=mi>1</span><span class=p>],</span> <span class=n>q</span><span class=p>[</span><span class=n>R</span><span class=p>])</span> <span class=o>&lt;</span> <span class=n>slope</span><span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>R</span><span class=p>],</span> <span class=n>i</span><span class=p>))</span> <span class=n>R</span><span class=o>--</span><span class=p>;</span>
+        <span class=n>q</span><span class=p>[</span><span class=o>++</span><span class=n>R</span><span class=p>]</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>m</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>id</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>r</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>while</span> <span class=p>(</span><span class=n>L</span> <span class=o>&lt;</span> <span class=n>R</span> <span class=o>&amp;&amp;</span> <span class=n>slope</span><span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>L</span><span class=p>],</span> <span class=n>q</span><span class=p>[</span><span class=n>L</span> <span class=o>+</span> <span class=mi>1</span><span class=p>])</span> <span class=o>&gt;</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>k</span><span class=p>)</span> <span class=n>L</span><span class=o>++</span><span class=p>;</span>
+        <span class=n>id</span> <span class=o>=</span> <span class=n>q</span><span class=p>[</span><span class=n>L</span><span class=p>];</span>
+        <span class=n>dp</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>id</span><span class=p>]</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>id</span><span class=p>],</span> <span class=n>p</span><span class=p>[</span><span class=n>id</span><span class=p>].</span><span class=n>x</span> <span class=o>*</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>a</span> <span class=o>+</span> <span class=n>p</span><span class=p>[</span><span class=n>id</span><span class=p>].</span><span class=n>y</span> <span class=o>*</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>b</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=n>solve</span><span class=p>(</span><span class=n>m</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>r</span><span class=p>);</span>
+ 
+    <span class=n>l1</span> <span class=o>=</span> <span class=n>l</span><span class=p>,</span> <span class=n>l2</span> <span class=o>=</span> <span class=n>m</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>cur</span> <span class=o>=</span> <span class=n>l</span><span class=p>;</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>l1</span> <span class=o>&lt;=</span> <span class=n>m</span> <span class=o>&amp;&amp;</span> <span class=n>l2</span> <span class=o>&lt;=</span> <span class=n>r</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>p</span><span class=p>[</span><span class=n>l1</span><span class=p>].</span><span class=n>x</span> <span class=o>&lt;</span> <span class=n>p</span><span class=p>[</span><span class=n>l2</span><span class=p>].</span><span class=n>x</span> <span class=o>+</span> <span class=n>eps</span><span class=p>)</span>
+            <span class=n>cpy</span><span class=p>[</span><span class=n>cur</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>p</span><span class=p>[</span><span class=n>l1</span><span class=o>++</span><span class=p>];</span>
+        <span class=k>else</span>
+            <span class=n>cpy</span><span class=p>[</span><span class=n>cur</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>p</span><span class=p>[</span><span class=n>l2</span><span class=o>++</span><span class=p>];</span>
+    <span class=p>}</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>l1</span> <span class=o>&lt;=</span> <span class=n>m</span><span class=p>)</span> <span class=n>cpy</span><span class=p>[</span><span class=n>cur</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>p</span><span class=p>[</span><span class=n>l1</span><span class=o>++</span><span class=p>];</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>l2</span> <span class=o>&lt;=</span> <span class=n>r</span><span class=p>)</span> <span class=n>cpy</span><span class=p>[</span><span class=n>cur</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>p</span><span class=p>[</span><span class=n>l2</span><span class=o>++</span><span class=p>];</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>l</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>r</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>cpy</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+<span class=p>}</span>
+<span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+    <span class=c1>//  /*
+</span><span class=c1></span><span class=cp>#ifndef ONLINE_JUDGE
+</span><span class=cp></span>    <span class=n>freopen</span><span class=p>(</span><span class=s>&#34;1.in&#34;</span><span class=p>,</span> <span class=s>&#34;r&#34;</span><span class=p>,</span> <span class=n>stdin</span><span class=p>);</span>
+    <span class=n>freopen</span><span class=p>(</span><span class=s>&#34;1.out&#34;</span><span class=p>,</span> <span class=s>&#34;w&#34;</span><span class=p>,</span> <span class=n>stdout</span><span class=p>);</span>
+<span class=cp>#endif
+</span><span class=cp></span>    <span class=c1>//  */
+</span><span class=c1></span>    <span class=n>std</span><span class=o>::</span><span class=n>ios</span><span class=o>::</span><span class=n>sync_with_stdio</span><span class=p>(</span><span class=nb>false</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=n>n</span><span class=p>;</span>
+    <span class=kt>double</span> <span class=n>s</span><span class=p>;</span>
+    <span class=n>scanf</span><span class=p>(</span><span class=s>&#34;%d%lf&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>n</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>s</span><span class=p>);</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>scanf</span><span class=p>(</span><span class=s>&#34;%lf%lf%lf&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>a</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>b</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>r</span><span class=p>);</span>
+        <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>id</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span>
+        <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>k</span> <span class=o>=</span> <span class=o>-</span><span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>a</span> <span class=o>/</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>b</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=n>sort</span><span class=p>(</span><span class=n>p</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>p</span> <span class=o>+</span> <span class=mi>1</span> <span class=o>+</span> <span class=n>n</span><span class=p>);</span>
+    <span class=n>dp</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=n>s</span><span class=p>;</span>
+    <span class=n>solve</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=n>n</span><span class=p>);</span>
+    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;%.3lf</span><span class=se>\\</span><span class=s>n&#34;</span><span class=p>,</span> <span class=n>dp</span><span class=p>[</span><span class=n>n</span><span class=p>]);</span>
+<span class=p>}</span>
+</code></pre></div>
+</section>
+<footer class=article-footer>
+<section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span>
+</section>
+</footer>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css integrity=sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js integrity=sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8 crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js integrity=sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})})</script>
+</article>
+<aside class=related-contents--wrapper>
+<h2 class=section-title>相关文章</h2>
+<div class=related-contents>
+<div class="flex article-list--tile">
+<article>
+<a href=/p/2018-icpc-asia-singapore-regional-contest/>
+<div class=article-details>
+<h2 class=article-title>2018 ICPC Asia Singapore Regional Contest</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/2018-icpc-mid-central-regional/>
+<div class=article-details>
+<h2 class=article-title>2018 ICPC Mid-Central Regional</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/2018-hdu%E5%A4%9A%E6%A0%A1%E7%AC%AC%E4%B8%89%E5%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>2018 hdu多校第三场</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/2018-hdu%E5%A4%9A%E6%A0%A1%E7%AC%AC%E5%9B%9B%E5%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>2018 hdu多校第四场</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/2018-%E7%89%9B%E5%AE%A2%E5%A4%9A%E6%A0%A1%E7%AC%AC%E4%B8%80%E5%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>2018 牛客多校第一场</h2>
+</div>
+</a>
+</article>
+</div>
+</div>
+</aside>
+<footer class=site-footer>
+<section class=copyright>
+&copy;
+2020 -
+2021 miao
+</section>
+<section class=powerby>
+Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> <br>
+Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a>
+</section>
+</footer>
+<div class=pswp tabindex=-1 role=dialog aria-hidden=true>
+<div class=pswp__bg></div>
+<div class=pswp__scroll-wrap>
+<div class=pswp__container>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+</div>
+<div class="pswp__ui pswp__ui--hidden">
+<div class=pswp__top-bar>
+<div class=pswp__counter></div>
+<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+<div class=pswp__preloader>
+<div class=pswp__preloader__icn>
+<div class=pswp__preloader__cut>
+<div class=pswp__preloader__donut></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+<div class=pswp__share-tooltip></div>
+</div>
+<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+</button>
+<div class=pswp__caption>
+<div class=pswp__caption__center></div>
+</div>
+</div>
+</div>
+</div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous>
+</main>
+<aside class="sidebar right-sidebar sticky">
+<section class="widget archives">
+<div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+</div>
+<h2 class="widget-title section-title">目录</h2>
+<div class=widget--toc>
+<nav id=TableOfContents>
+<ol>
+<li><a href=#题意>题意</a></li>
+<li><a href=#分析>分析</a></li>
+<li><a href=#代码>代码</a></li>
+</ol>
+</nav>
+</div>
+</section>
+</aside>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const a=document.createElement('link');a.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",a.type="text/css",a.rel="stylesheet",document.head.appendChild(a)})()</script>
+</body>
+</html>

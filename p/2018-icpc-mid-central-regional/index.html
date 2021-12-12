@@ -1,0 +1,433 @@
+<!doctype html><html lang=en-us>
+<head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="I - Random Manhattan Distance 题意 给定 $n$ 个点的凸包，问从凸包内任选两点，其曼哈顿距离的期望是多少。 $3 \leq n \leq 100000$ 分析 首先两维是独立的，对于任意一维来说： 设凸包面积为"><title>2018 ICPC Mid-Central Regional</title>
+<link rel=canonical href=https://www.miaowh.com/p/2018-icpc-mid-central-regional/>
+<link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="2018 ICPC Mid-Central Regional">
+<meta property="og:description" content="I - Random Manhattan Distance 题意 给定 $n$ 个点的凸包，问从凸包内任选两点，其曼哈顿距离的期望是多少。 $3 \leq n \leq 100000$ 分析 首先两维是独立的，对于任意一维来说： 设凸包面积为">
+<meta property="og:url" content="https://www.miaowh.com/p/2018-icpc-mid-central-regional/">
+<meta property="og:site_name" content="miao">
+<meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-12-12T00:00:00+00:00"><meta property="article:modified_time" content="2021-12-12T00:00:00+00:00">
+<meta name=twitter:title content="2018 ICPC Mid-Central Regional">
+<meta name=twitter:description content="I - Random Manhattan Distance 题意 给定 $n$ 个点的凸包，问从凸包内任选两点，其曼哈顿距离的期望是多少。 $3 \leq n \leq 100000$ 分析 首先两维是独立的，对于任意一维来说： 设凸包面积为">
+</head>
+<body class="article-page has-toc">
+<script>(function(){const a='StackColorScheme';localStorage.getItem(a)||localStorage.setItem(a,"auto")})()</script><script>(function(){const b='StackColorScheme',a=localStorage.getItem(b),c=window.matchMedia('(prefers-color-scheme: dark)').matches===!0;a=='dark'||a==='auto'&&c?document.documentElement.dataset.scheme='dark':document.documentElement.dataset.scheme='light'})()</script>
+<div class="container main-container flex
+extended">
+<div id=article-toolbar>
+<a href=https://www.miaowh.com class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg>
+<span>返回</span>
+</a>
+</div>
+<main class="main full-width">
+<article class=main-article>
+<header class=article-header>
+<div class=article-details>
+<header class=article-category>
+<a href=/categories/%E9%A2%98%E8%A7%A3/>
+题解
+</a>
+</header>
+<h2 class=article-title>
+<a href=/p/2018-icpc-mid-central-regional/>2018 ICPC Mid-Central Regional</a>
+</h2>
+<footer class=article-time>
+<div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Dec 12, 2021</time>
+</div>
+</footer>
+</div>
+</header>
+<section class=article-content>
+<h2 id=i---random-manhattan-distance>I - Random Manhattan Distance</h2>
+<h3 id=题意>题意</h3>
+<p>给定 $n$ 个点的凸包，问从凸包内任选两点，其曼哈顿距离的期望是多少。</p>
+<p>$3 \leq n \leq 100000$</p>
+<h3 id=分析>分析</h3>
+<p>首先两维是独立的，对于任意一维来说：</p>
+<p>设凸包面积为 $S$。</p>
+<p>设 $weight(x) = leftHeight + x \times \frac{(rightHeight - leftHeight)}{width}$，表示所选点落在 $x$ 位置的概率乘 $S$（这里是为了减小误差，最后再除掉即可。先当作概率来理解）。</p>
+<p>因为这个概率密度函数 $weight(x)$ 是个分段函数，每一段对应一个梯形（扫描线从左到右扫过去）。因此我们将答案分为两部分来算，第一部分是当前梯形所对应的区间内任选两点的贡献；第二部分是当前梯形所对应的区间内选一点，之前计算过的区间内选一点，这两个点的贡献。</p>
+<p>第一部分的答案就是 $2\times \int_{x=0}^{w} \int_{y=0}^{x} weight(x) \times weight(y) \times (x - y) dydx$</p>
+<blockquote>
+<p>积分全靠 $wolframalpha$&mldr;</p>
+</blockquote>
+<p>第二部分的答案是当前梯形所对应区间的期望位置和之前区域的期望位置之差。</p>
+<p>当前期望位置的计算：$current_x + E(x) =current_x + \int_0^w x \times (\frac{weight(x)}{area})$</p>
+<p>之前区域期望位置的计算：$\frac{E_0 \times area_0+ E_1 \times area_1 + &mldr;}{area_0 + area_1 + &mldr;}$</p>
+<blockquote>
+<p>期望计算公式：$E(g(X)) = \int g(x)f(x) dx$</p>
+</blockquote>
+<h3 id=代码>代码</h3>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=cp>#include</span> <span class=cpf>&lt;bits/stdc++.h&gt;</span><span class=cp>
+</span><span class=cp></span><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+
+<span class=k>const</span> <span class=kt>int</span> <span class=n>MAXN</span> <span class=o>=</span> <span class=mi>100000</span><span class=p>;</span>
+<span class=k>const</span> <span class=kt>long</span> <span class=kt>long</span> <span class=n>INF</span> <span class=o>=</span> <span class=mi>1000000000</span><span class=p>;</span>
+
+<span class=k>struct</span> <span class=nc>Point</span> <span class=p>{</span>
+  <span class=kt>long</span> <span class=kt>long</span> <span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>;</span>
+
+  <span class=n>Point</span><span class=p>()</span> <span class=p>{}</span>
+  <span class=n>Point</span><span class=p>(</span><span class=kt>long</span> <span class=kt>long</span> <span class=n>x</span><span class=p>,</span> <span class=kt>long</span> <span class=kt>long</span> <span class=n>y</span><span class=p>)</span> <span class=o>:</span> <span class=n>x</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>y</span><span class=p>(</span><span class=n>y</span><span class=p>)</span> <span class=p>{}</span>
+<span class=p>};</span>
+
+<span class=kt>bool</span> <span class=k>operator</span><span class=o>&lt;</span><span class=p>(</span><span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>a</span><span class=p>,</span> <span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>b</span><span class=p>)</span> <span class=p>{</span>
+  <span class=k>return</span> <span class=n>a</span><span class=p>.</span><span class=n>x</span> <span class=o>&lt;</span> <span class=n>b</span><span class=p>.</span><span class=n>x</span> <span class=o>||</span> <span class=n>a</span><span class=p>.</span><span class=n>x</span> <span class=o>==</span> <span class=n>b</span><span class=p>.</span><span class=n>x</span> <span class=o>&amp;&amp;</span> <span class=n>a</span><span class=p>.</span><span class=n>y</span> <span class=o>&lt;</span> <span class=n>b</span><span class=p>.</span><span class=n>y</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=n>Point</span> <span class=k>operator</span><span class=o>-</span><span class=p>(</span><span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>a</span><span class=p>,</span> <span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>b</span><span class=p>)</span> <span class=p>{</span>
+  <span class=k>return</span> <span class=nf>Point</span><span class=p>(</span><span class=n>a</span><span class=p>.</span><span class=n>x</span> <span class=o>-</span> <span class=n>b</span><span class=p>.</span><span class=n>x</span><span class=p>,</span> <span class=n>a</span><span class=p>.</span><span class=n>y</span> <span class=o>-</span> <span class=n>b</span><span class=p>.</span><span class=n>y</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>long</span> <span class=kt>long</span> <span class=nf>det</span><span class=p>(</span><span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>a</span><span class=p>,</span> <span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>b</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=n>a</span><span class=p>.</span><span class=n>x</span> <span class=o>*</span> <span class=n>b</span><span class=p>.</span><span class=n>y</span> <span class=o>-</span> <span class=n>a</span><span class=p>.</span><span class=n>y</span> <span class=o>*</span> <span class=n>b</span><span class=p>.</span><span class=n>x</span><span class=p>;</span> <span class=p>}</span>
+
+<span class=k>struct</span> <span class=nc>Zone</span> <span class=p>{</span>
+  <span class=kt>double</span> <span class=n>width</span><span class=p>,</span> <span class=n>leftHeight</span><span class=p>,</span> <span class=n>rightHeight</span><span class=p>;</span>
+  <span class=n>Zone</span><span class=p>()</span> <span class=p>{}</span>
+  <span class=n>Zone</span><span class=p>(</span><span class=kt>double</span> <span class=n>width</span><span class=p>,</span> <span class=kt>double</span> <span class=n>leftHeight</span><span class=p>,</span> <span class=kt>double</span> <span class=n>rightHeight</span><span class=p>)</span>
+      <span class=o>:</span> <span class=n>width</span><span class=p>(</span><span class=n>width</span><span class=p>),</span> <span class=n>leftHeight</span><span class=p>(</span><span class=n>leftHeight</span><span class=p>),</span> <span class=n>rightHeight</span><span class=p>(</span><span class=n>rightHeight</span><span class=p>)</span> <span class=p>{}</span>
+<span class=p>};</span>
+
+<span class=kt>double</span> <span class=nf>getHeight</span><span class=p>(</span><span class=k>const</span> <span class=n>vector</span><span class=o>&lt;</span><span class=n>Point</span><span class=o>&gt;&amp;</span> <span class=n>a</span><span class=p>,</span> <span class=kt>long</span> <span class=kt>long</span> <span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=n>i</span><span class=p>,</span> <span class=kt>int</span> <span class=n>j</span><span class=p>)</span> <span class=p>{</span>
+  <span class=k>if</span> <span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>x</span> <span class=o>==</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>return</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>y</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=k>if</span> <span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>j</span><span class=p>].</span><span class=n>x</span> <span class=o>==</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>return</span> <span class=n>a</span><span class=p>[</span><span class=n>j</span><span class=p>].</span><span class=n>y</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=kt>double</span> <span class=n>slope</span> <span class=o>=</span> <span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>j</span><span class=p>].</span><span class=n>y</span> <span class=o>-</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>y</span><span class=p>)</span> <span class=o>/</span> <span class=p>(</span><span class=kt>double</span><span class=p>)(</span><span class=n>a</span><span class=p>[</span><span class=n>j</span><span class=p>].</span><span class=n>x</span> <span class=o>-</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>x</span><span class=p>);</span>
+  <span class=k>return</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>y</span> <span class=o>+</span> <span class=n>slope</span> <span class=o>*</span> <span class=p>(</span><span class=n>x</span> <span class=o>-</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>x</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>double</span> <span class=nf>solve</span><span class=p>(</span><span class=n>vector</span><span class=o>&lt;</span><span class=n>Point</span><span class=o>&gt;&amp;</span> <span class=n>a</span><span class=p>)</span> <span class=p>{</span>
+  <span class=kt>int</span> <span class=n>n</span> <span class=o>=</span> <span class=n>a</span><span class=p>.</span><span class=n>size</span><span class=p>();</span>
+  <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=o>++</span><span class=n>i</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>x</span> <span class=o>=</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+    <span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>y</span> <span class=o>=</span> <span class=n>a</span><span class=p>[(</span><span class=n>i</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span> <span class=o>%</span> <span class=n>n</span><span class=p>];</span>
+    <span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>z</span> <span class=o>=</span> <span class=n>a</span><span class=p>[(</span><span class=n>i</span> <span class=o>+</span> <span class=mi>2</span><span class=p>)</span> <span class=o>%</span> <span class=n>n</span><span class=p>];</span>
+    <span class=n>assert</span><span class=p>(</span><span class=n>det</span><span class=p>(</span><span class=n>z</span> <span class=o>-</span> <span class=n>y</span><span class=p>,</span> <span class=n>y</span> <span class=o>-</span> <span class=n>x</span><span class=p>)</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=kt>int</span> <span class=n>upper_ptr</span> <span class=o>=</span>
+      <span class=n>min_element</span><span class=p>(</span><span class=n>a</span><span class=p>.</span><span class=n>begin</span><span class=p>(),</span> <span class=n>a</span><span class=p>.</span><span class=n>end</span><span class=p>())</span> <span class=o>-</span> <span class=n>a</span><span class=p>.</span><span class=n>begin</span><span class=p>();</span>  <span class=c1>// in the +1 direction
+</span><span class=c1></span>  <span class=kt>int</span> <span class=n>lower_ptr</span> <span class=o>=</span> <span class=n>upper_ptr</span><span class=p>;</span>                        <span class=c1>// in the -1 direction
+</span><span class=c1></span>  <span class=n>vector</span><span class=o>&lt;</span><span class=n>Zone</span><span class=o>&gt;</span> <span class=n>zones</span><span class=p>;</span>
+  <span class=k>while</span> <span class=p>(</span><span class=nb>true</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>upper_next</span> <span class=o>=</span> <span class=p>(</span><span class=n>upper_ptr</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span> <span class=o>%</span> <span class=n>n</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>lower_next</span> <span class=o>=</span> <span class=p>(</span><span class=n>lower_ptr</span> <span class=o>-</span> <span class=mi>1</span> <span class=o>+</span> <span class=n>n</span><span class=p>)</span> <span class=o>%</span> <span class=n>n</span><span class=p>;</span>
+    <span class=kt>long</span> <span class=kt>long</span> <span class=n>current_x</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>upper_ptr</span><span class=p>].</span><span class=n>x</span><span class=p>,</span> <span class=n>a</span><span class=p>[</span><span class=n>lower_ptr</span><span class=p>].</span><span class=n>x</span><span class=p>);</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>current_x</span> <span class=o>==</span> <span class=n>a</span><span class=p>[</span><span class=n>upper_next</span><span class=p>].</span><span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+      <span class=n>upper_ptr</span> <span class=o>=</span> <span class=n>upper_next</span><span class=p>;</span>
+      <span class=k>continue</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>current_x</span> <span class=o>==</span> <span class=n>a</span><span class=p>[</span><span class=n>lower_next</span><span class=p>].</span><span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+      <span class=n>lower_ptr</span> <span class=o>=</span> <span class=n>lower_next</span><span class=p>;</span>
+      <span class=k>continue</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=kt>long</span> <span class=kt>long</span> <span class=n>next_x</span> <span class=o>=</span> <span class=n>min</span><span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>upper_next</span><span class=p>].</span><span class=n>x</span><span class=p>,</span> <span class=n>a</span><span class=p>[</span><span class=n>lower_next</span><span class=p>].</span><span class=n>x</span><span class=p>);</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>next_x</span> <span class=o>&lt;</span> <span class=n>current_x</span><span class=p>)</span> <span class=p>{</span>
+      <span class=k>break</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=kt>double</span> <span class=n>leftHeight</span> <span class=o>=</span> <span class=n>getHeight</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>current_x</span><span class=p>,</span> <span class=n>upper_ptr</span><span class=p>,</span> <span class=n>upper_next</span><span class=p>)</span> <span class=o>-</span>
+                        <span class=n>getHeight</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>current_x</span><span class=p>,</span> <span class=n>lower_ptr</span><span class=p>,</span> <span class=n>lower_next</span><span class=p>);</span>
+    <span class=kt>double</span> <span class=n>rightHeight</span> <span class=o>=</span> <span class=n>getHeight</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>next_x</span><span class=p>,</span> <span class=n>upper_ptr</span><span class=p>,</span> <span class=n>upper_next</span><span class=p>)</span> <span class=o>-</span>
+                         <span class=n>getHeight</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>next_x</span><span class=p>,</span> <span class=n>lower_ptr</span><span class=p>,</span> <span class=n>lower_next</span><span class=p>);</span>
+    <span class=n>zones</span><span class=p>.</span><span class=n>push_back</span><span class=p>(</span><span class=n>Zone</span><span class=p>(</span><span class=n>next_x</span> <span class=o>-</span> <span class=n>current_x</span><span class=p>,</span> <span class=n>leftHeight</span><span class=p>,</span> <span class=n>rightHeight</span><span class=p>));</span>
+    <span class=c1>// fprintf(stderr, &#34;%lld -&gt; %lld\\n&#34;, current_x, next_x);
+</span><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>next_x</span> <span class=o>==</span> <span class=n>a</span><span class=p>[</span><span class=n>upper_next</span><span class=p>].</span><span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+      <span class=n>upper_ptr</span> <span class=o>=</span> <span class=n>upper_next</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>next_x</span> <span class=o>==</span> <span class=n>a</span><span class=p>[</span><span class=n>lower_next</span><span class=p>].</span><span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+      <span class=n>lower_ptr</span> <span class=o>=</span> <span class=n>lower_next</span><span class=p>;</span>
+    <span class=p>}</span>
+  <span class=p>}</span>
+  <span class=kt>double</span> <span class=n>s</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>a2</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>current_x</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+  <span class=kt>double</span> <span class=n>sum_area_x</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>sum_area</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+  <span class=k>for</span> <span class=p>(</span><span class=n>Zone</span> <span class=nl>zone</span> <span class=p>:</span> <span class=n>zones</span><span class=p>)</span> <span class=p>{</span>
+    <span class=c1>// Within the zone
+</span><span class=c1></span>    <span class=c1>//      x from 0..width
+</span><span class=c1></span>    <span class=c1>//      weight(x) = leftHeight + x * (rightHeight - leftHeight) / width
+</span><span class=c1></span>    <span class=c1>//      \\int_{x=0}^{w} \\int_{y=0}^{x} weight(x) * weight(y) * (x - y) dx, dy
+</span><span class=c1></span>    <span class=n>s</span> <span class=o>+=</span> <span class=p>(</span><span class=n>zone</span><span class=p>.</span><span class=n>leftHeight</span> <span class=o>*</span> <span class=n>zone</span><span class=p>.</span><span class=n>leftHeight</span> <span class=o>+</span>
+          <span class=mi>3</span> <span class=o>*</span> <span class=n>zone</span><span class=p>.</span><span class=n>leftHeight</span> <span class=o>*</span> <span class=n>zone</span><span class=p>.</span><span class=n>rightHeight</span> <span class=o>+</span>
+          <span class=n>zone</span><span class=p>.</span><span class=n>rightHeight</span> <span class=o>*</span> <span class=n>zone</span><span class=p>.</span><span class=n>rightHeight</span><span class=p>)</span> <span class=o>*</span>
+         <span class=n>zone</span><span class=p>.</span><span class=n>width</span> <span class=o>*</span> <span class=n>zone</span><span class=p>.</span><span class=n>width</span> <span class=o>*</span> <span class=n>zone</span><span class=p>.</span><span class=n>width</span> <span class=o>/</span> <span class=mi>15</span><span class=p>;</span>
+    <span class=kt>double</span> <span class=n>area</span> <span class=o>=</span> <span class=p>(</span><span class=n>zone</span><span class=p>.</span><span class=n>leftHeight</span> <span class=o>+</span> <span class=n>zone</span><span class=p>.</span><span class=n>rightHeight</span><span class=p>)</span> <span class=o>*</span> <span class=n>zone</span><span class=p>.</span><span class=n>width</span> <span class=o>/</span> <span class=mi>2</span><span class=p>;</span>
+    <span class=c1>// E[x] with in this zone
+</span><span class=c1></span>    <span class=kt>double</span> <span class=n>expected_x</span> <span class=o>=</span>
+        <span class=n>current_x</span> <span class=o>+</span> <span class=p>(</span><span class=n>zone</span><span class=p>.</span><span class=n>leftHeight</span> <span class=o>+</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>zone</span><span class=p>.</span><span class=n>rightHeight</span><span class=p>)</span> <span class=o>/</span>
+                        <span class=p>(</span><span class=mi>3</span> <span class=o>*</span> <span class=p>(</span><span class=n>zone</span><span class=p>.</span><span class=n>leftHeight</span> <span class=o>+</span> <span class=n>zone</span><span class=p>.</span><span class=n>rightHeight</span><span class=p>))</span> <span class=o>*</span> <span class=n>zone</span><span class=p>.</span><span class=n>width</span><span class=p>;</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>sum_area</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+      <span class=c1>// for the left zones
+</span><span class=c1></span>      <span class=n>s</span> <span class=o>+=</span> <span class=mi>2</span> <span class=o>*</span> <span class=p>(</span><span class=n>expected_x</span> <span class=o>-</span> <span class=n>sum_area_x</span> <span class=o>/</span> <span class=n>sum_area</span><span class=p>)</span> <span class=o>*</span> <span class=n>sum_area</span> <span class=o>*</span> <span class=n>area</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=n>a2</span> <span class=o>+=</span> <span class=n>area</span> <span class=o>*</span> <span class=p>(</span><span class=mi>2</span> <span class=o>*</span> <span class=n>sum_area</span> <span class=o>+</span> <span class=n>area</span><span class=p>);</span>  <span class=c1>// S^2
+</span><span class=c1></span>    <span class=n>sum_area</span> <span class=o>+=</span> <span class=n>area</span><span class=p>;</span>
+    <span class=n>sum_area_x</span> <span class=o>+=</span> <span class=n>expected_x</span> <span class=o>*</span> <span class=n>area</span><span class=p>;</span>
+    <span class=n>current_x</span> <span class=o>+=</span> <span class=n>zone</span><span class=p>.</span><span class=n>width</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=k>return</span> <span class=n>s</span> <span class=o>/</span> <span class=n>a2</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+  <span class=kt>int</span> <span class=n>n</span><span class=p>;</span>
+  <span class=n>assert</span><span class=p>(</span><span class=n>scanf</span><span class=p>(</span><span class=s>&#34;%d&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>n</span><span class=p>)</span> <span class=o>==</span> <span class=mi>1</span><span class=p>);</span>
+  <span class=n>assert</span><span class=p>(</span><span class=mi>3</span> <span class=o>&lt;=</span> <span class=n>n</span> <span class=o>&amp;&amp;</span> <span class=n>n</span> <span class=o>&lt;=</span> <span class=n>MAXN</span><span class=p>);</span>
+  <span class=n>vector</span><span class=o>&lt;</span><span class=n>Point</span><span class=o>&gt;</span> <span class=n>a</span><span class=p>(</span><span class=n>n</span><span class=p>);</span>
+  <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=o>++</span><span class=n>i</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>assert</span><span class=p>(</span><span class=n>scanf</span><span class=p>(</span><span class=s>&#34;%lld%lld&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>x</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>y</span><span class=p>)</span> <span class=o>==</span> <span class=mi>2</span><span class=p>);</span>
+    <span class=n>assert</span><span class=p>(</span><span class=n>abs</span><span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>x</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=n>INF</span><span class=p>);</span>
+    <span class=n>assert</span><span class=p>(</span><span class=n>abs</span><span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>y</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=n>INF</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=kt>double</span> <span class=n>ret</span> <span class=o>=</span> <span class=n>solve</span><span class=p>(</span><span class=n>a</span><span class=p>);</span>
+  <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>a</span><span class=p>.</span><span class=n>size</span><span class=p>();</span> <span class=o>++</span><span class=n>i</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>swap</span><span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>x</span><span class=p>,</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>y</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=n>reverse</span><span class=p>(</span><span class=n>a</span><span class=p>.</span><span class=n>begin</span><span class=p>(),</span> <span class=n>a</span><span class=p>.</span><span class=n>end</span><span class=p>());</span>  <span class=c1>// make sure it&#39;s in the counter-clockwise order
+</span><span class=c1></span>  <span class=n>ret</span> <span class=o>+=</span> <span class=n>solve</span><span class=p>(</span><span class=n>a</span><span class=p>);</span>
+  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;%.10f</span><span class=se>\\</span><span class=s>n&#34;</span><span class=p>,</span> <span class=n>ret</span><span class=p>);</span>
+  <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></div><h2 id=j---mobilization>J - Mobilization</h2>
+<h3 id=题意-1>题意</h3>
+<p>给定 $n$ 种物品，每种物品都有两个属性$h_i,p_i$和一个价格$c_i$，每种物品都有无限个。你现在拥有 $b$ 元钱。
+定义最终的价值为所购买所有物品 $h$ 的总和乘以 $p$ 的总和。 求最大价值。
+每种物品可以买分数个。</p>
+<p>$1 \leq n \leq 30000, 1 \leq b \leq 100000$</p>
+<h3 id=分析-1>分析</h3>
+<p>先求出对于每种物品，每花一元钱可以获得的 $(h,p)$。这可以看成二维平面上的若干点。</p>
+<p>这些点的任意组合：$f = k_1 \times (h_1,p_1) + k_2 \times (h_2,p_2) + k_3 \times (h_3,p_3)&mldr; $。</p>
+<p>因为有限制 $k_1 + k_2 + &mldr; + k_n = 1$。所以 $f$ 一定在这些点组成的凸包内。</p>
+<p>而我们最终的价值实际上可以看作是 $f$ 与原点围成的矩形面积，因此得到答案必在凸包的边界上。</p>
+<p>然后我们只要枚举凸包的边界，计算最值即可。</p>
+<h3 id=代码-1>代码</h3>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=cp>#include</span> <span class=cpf>&lt;bits/stdc++.h&gt;</span><span class=cp>
+</span><span class=cp></span>
+<span class=k>using</span> <span class=n>db</span> <span class=o>=</span> <span class=kt>long</span> <span class=kt>double</span><span class=p>;</span>
+
+<span class=k>struct</span> <span class=nc>Point</span> <span class=p>{</span>
+    <span class=n>db</span> <span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>;</span>
+    <span class=n>Point</span><span class=p>(</span><span class=n>db</span> <span class=n>x</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>db</span> <span class=n>y</span> <span class=o>=</span> <span class=mi>0</span><span class=p>)</span> <span class=o>:</span> <span class=n>x</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>y</span><span class=p>(</span><span class=n>y</span><span class=p>)</span> <span class=p>{}</span>
+<span class=p>};</span>
+
+<span class=k>typedef</span> <span class=n>Point</span> <span class=n>Vector</span><span class=p>;</span>
+
+<span class=kt>bool</span> <span class=k>operator</span><span class=o>&lt;</span><span class=p>(</span><span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>a</span><span class=p>,</span> <span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>b</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>return</span> <span class=n>a</span><span class=p>.</span><span class=n>x</span> <span class=o>&lt;</span> <span class=n>b</span><span class=p>.</span><span class=n>x</span> <span class=o>||</span> <span class=p>(</span><span class=n>a</span><span class=p>.</span><span class=n>x</span> <span class=o>==</span> <span class=n>b</span><span class=p>.</span><span class=n>x</span> <span class=o>&amp;&amp;</span> <span class=n>a</span><span class=p>.</span><span class=n>y</span> <span class=o>&lt;</span> <span class=n>b</span><span class=p>.</span><span class=n>y</span><span class=p>);</span>
+<span class=p>}</span>
+<span class=n>Vector</span> <span class=k>operator</span><span class=o>+</span><span class=p>(</span><span class=n>Vector</span> <span class=n>A</span><span class=p>,</span> <span class=n>Vector</span> <span class=n>B</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=nf>Vector</span><span class=p>(</span><span class=n>A</span><span class=p>.</span><span class=n>x</span> <span class=o>+</span> <span class=n>B</span><span class=p>.</span><span class=n>x</span><span class=p>,</span> <span class=n>A</span><span class=p>.</span><span class=n>y</span> <span class=o>+</span> <span class=n>B</span><span class=p>.</span><span class=n>y</span><span class=p>);</span> <span class=p>}</span>
+<span class=n>Vector</span> <span class=k>operator</span><span class=o>-</span><span class=p>(</span><span class=n>Point</span> <span class=n>A</span><span class=p>,</span> <span class=n>Point</span> <span class=n>B</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=nf>Vector</span><span class=p>(</span><span class=n>A</span><span class=p>.</span><span class=n>x</span> <span class=o>-</span> <span class=n>B</span><span class=p>.</span><span class=n>x</span><span class=p>,</span> <span class=n>A</span><span class=p>.</span><span class=n>y</span> <span class=o>-</span> <span class=n>B</span><span class=p>.</span><span class=n>y</span><span class=p>);</span> <span class=p>}</span>
+<span class=n>Vector</span> <span class=k>operator</span><span class=o>*</span><span class=p>(</span><span class=n>Point</span> <span class=n>A</span><span class=p>,</span> <span class=n>db</span> <span class=n>p</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=nf>Vector</span><span class=p>(</span><span class=n>A</span><span class=p>.</span><span class=n>x</span> <span class=o>*</span> <span class=n>p</span><span class=p>,</span> <span class=n>A</span><span class=p>.</span><span class=n>y</span> <span class=o>*</span> <span class=n>p</span><span class=p>);</span> <span class=p>}</span>
+
+<span class=k>const</span> <span class=n>db</span> <span class=n>eps</span> <span class=o>=</span> <span class=mf>1e-12</span><span class=p>;</span>
+
+<span class=n>db</span> <span class=nf>dcmp</span><span class=p>(</span><span class=n>db</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>fabs</span><span class=p>(</span><span class=n>x</span><span class=p>)</span> <span class=o>&lt;</span> <span class=n>eps</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=n>x</span> <span class=o>&lt;</span> <span class=mi>0</span> <span class=o>?</span> <span class=o>-</span><span class=mi>1</span> <span class=o>:</span> <span class=mi>1</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=kt>bool</span> <span class=k>operator</span><span class=o>==</span><span class=p>(</span><span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>a</span><span class=p>,</span> <span class=k>const</span> <span class=n>Point</span><span class=o>&amp;</span> <span class=n>b</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>return</span> <span class=nf>dcmp</span><span class=p>(</span><span class=n>a</span><span class=p>.</span><span class=n>x</span> <span class=o>-</span> <span class=n>b</span><span class=p>.</span><span class=n>x</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span> <span class=o>&amp;&amp;</span> <span class=n>dcmp</span><span class=p>(</span><span class=n>a</span><span class=p>.</span><span class=n>y</span> <span class=o>-</span> <span class=n>b</span><span class=p>.</span><span class=n>y</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=n>db</span> <span class=nf>Cross</span><span class=p>(</span><span class=n>Vector</span> <span class=n>A</span><span class=p>,</span> <span class=n>Vector</span> <span class=n>B</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=n>A</span><span class=p>.</span><span class=n>x</span> <span class=o>*</span> <span class=n>B</span><span class=p>.</span><span class=n>y</span> <span class=o>-</span> <span class=n>A</span><span class=p>.</span><span class=n>y</span> <span class=o>*</span> <span class=n>B</span><span class=p>.</span><span class=n>x</span><span class=p>;</span> <span class=p>}</span>
+
+<span class=k>typedef</span> <span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=n>Point</span><span class=o>&gt;</span> <span class=n>Polygon</span><span class=p>;</span>
+
+<span class=n>Polygon</span> <span class=nf>ConvexHull</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=n>Point</span><span class=o>&gt;</span> <span class=n>p</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>std</span><span class=o>::</span><span class=n>sort</span><span class=p>(</span><span class=n>p</span><span class=p>.</span><span class=n>begin</span><span class=p>(),</span> <span class=n>p</span><span class=p>.</span><span class=n>end</span><span class=p>());</span>
+    <span class=n>p</span><span class=p>.</span><span class=n>erase</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>unique</span><span class=p>(</span><span class=n>p</span><span class=p>.</span><span class=n>begin</span><span class=p>(),</span> <span class=n>p</span><span class=p>.</span><span class=n>end</span><span class=p>()),</span> <span class=n>p</span><span class=p>.</span><span class=n>end</span><span class=p>());</span>
+
+    <span class=kt>int</span> <span class=n>n</span> <span class=o>=</span> <span class=n>p</span><span class=p>.</span><span class=n>size</span><span class=p>(),</span> <span class=n>m</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+
+    <span class=n>Polygon</span> <span class=n>res</span><span class=p>(</span><span class=n>n</span> <span class=o>+</span> <span class=mi>1</span><span class=p>);</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>while</span> <span class=p>(</span><span class=n>m</span> <span class=o>&gt;</span> <span class=mi>1</span> <span class=o>&amp;&amp;</span> <span class=n>Cross</span><span class=p>(</span><span class=n>res</span><span class=p>[</span><span class=n>m</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>-</span> <span class=n>res</span><span class=p>[</span><span class=n>m</span> <span class=o>-</span> <span class=mi>2</span><span class=p>],</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>-</span> <span class=n>res</span><span class=p>[</span><span class=n>m</span> <span class=o>-</span> <span class=mi>2</span><span class=p>])</span> <span class=o>&lt;=</span> <span class=mi>0</span><span class=p>)</span>
+            <span class=n>m</span><span class=o>--</span><span class=p>;</span>
+        <span class=n>res</span><span class=p>[</span><span class=n>m</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+    <span class=p>}</span>
+    <span class=kt>int</span> <span class=n>k</span> <span class=o>=</span> <span class=n>m</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>n</span> <span class=o>-</span> <span class=mi>2</span><span class=p>;</span> <span class=n>i</span> <span class=o>&gt;=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span><span class=o>--</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>while</span> <span class=p>(</span><span class=n>m</span> <span class=o>&gt;</span> <span class=n>k</span> <span class=o>&amp;&amp;</span> <span class=n>Cross</span><span class=p>(</span><span class=n>res</span><span class=p>[</span><span class=n>m</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>-</span> <span class=n>res</span><span class=p>[</span><span class=n>m</span> <span class=o>-</span> <span class=mi>2</span><span class=p>],</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>-</span> <span class=n>res</span><span class=p>[</span><span class=n>m</span> <span class=o>-</span> <span class=mi>2</span><span class=p>])</span> <span class=o>&lt;=</span> <span class=mi>0</span><span class=p>)</span>
+            <span class=n>m</span><span class=o>--</span><span class=p>;</span>
+        <span class=n>res</span><span class=p>[</span><span class=n>m</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>p</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+    <span class=p>}</span>
+    <span class=n>m</span> <span class=o>-=</span> <span class=n>n</span> <span class=o>&gt;</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=n>res</span><span class=p>.</span><span class=n>resize</span><span class=p>(</span><span class=n>m</span><span class=p>);</span>
+    <span class=k>return</span> <span class=n>res</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=n>Point</span> <span class=nf>GetLineInterSection</span><span class=p>(</span><span class=n>Point</span> <span class=n>P</span><span class=p>,</span> <span class=n>Vector</span> <span class=n>v</span><span class=p>,</span> <span class=n>Point</span> <span class=n>Q</span><span class=p>,</span> <span class=n>Vector</span> <span class=n>w</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>Vector</span> <span class=n>u</span> <span class=o>=</span> <span class=n>P</span> <span class=o>-</span> <span class=n>Q</span><span class=p>;</span>
+    <span class=n>db</span> <span class=n>t</span> <span class=o>=</span> <span class=n>Cross</span><span class=p>(</span><span class=n>w</span><span class=p>,</span> <span class=n>u</span><span class=p>)</span> <span class=o>/</span> <span class=n>Cross</span><span class=p>(</span><span class=n>v</span><span class=p>,</span> <span class=n>w</span><span class=p>);</span>
+    <span class=k>return</span> <span class=n>P</span> <span class=o>+</span> <span class=n>v</span> <span class=o>*</span> <span class=n>t</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=kt>bool</span> <span class=nf>checkLL</span><span class=p>(</span><span class=n>Vector</span> <span class=n>v</span><span class=p>,</span> <span class=n>Vector</span> <span class=n>w</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=n>dcmp</span><span class=p>(</span><span class=n>Cross</span><span class=p>(</span><span class=n>v</span><span class=p>,</span> <span class=n>w</span><span class=p>))</span> <span class=o>==</span> <span class=mi>0</span><span class=p>;</span> <span class=p>}</span>
+
+
+<span class=n>db</span> <span class=nf>cal</span><span class=p>(</span><span class=n>Point</span> <span class=n>x</span><span class=p>){</span>
+    <span class=k>return</span> <span class=n>x</span><span class=p>.</span><span class=n>x</span> <span class=o>*</span> <span class=n>x</span><span class=p>.</span><span class=n>y</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>n</span><span class=p>,</span> <span class=n>b</span><span class=p>;</span>
+    <span class=n>scanf</span><span class=p>(</span><span class=s>&#34;%d%d&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>n</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>b</span><span class=p>);</span>
+    <span class=n>db</span> <span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>;</span>
+    <span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=n>Point</span><span class=o>&gt;</span> <span class=n>points</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>c</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>scanf</span><span class=p>(</span><span class=s>&#34;%d%Lf%Lf&#34;</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>c</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>x</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>y</span><span class=p>);</span>
+        <span class=n>points</span><span class=p>.</span><span class=n>emplace_back</span><span class=p>(</span><span class=n>x</span> <span class=o>*</span> <span class=n>b</span> <span class=o>/</span> <span class=n>c</span><span class=p>,</span> <span class=n>y</span> <span class=o>*</span> <span class=n>b</span> <span class=o>/</span> <span class=n>c</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=k>auto</span> <span class=n>poly</span> <span class=o>=</span> <span class=n>ConvexHull</span><span class=p>(</span><span class=n>points</span><span class=p>);</span>
+    <span class=n>db</span> <span class=n>ans</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>sz</span> <span class=o>=</span> <span class=n>poly</span><span class=p>.</span><span class=n>size</span><span class=p>();</span>
+
+    <span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span><span class=o>=</span><span class=mi>0</span><span class=p>;</span><span class=n>i</span><span class=o>&lt;</span><span class=n>sz</span><span class=p>;</span><span class=n>i</span><span class=o>++</span><span class=p>){</span>
+        <span class=k>auto</span> <span class=n>p1</span> <span class=o>=</span> <span class=n>poly</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+        <span class=k>auto</span> <span class=n>p2</span> <span class=o>=</span> <span class=n>poly</span><span class=p>[(</span><span class=n>i</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span> <span class=o>%</span> <span class=n>sz</span><span class=p>];</span>
+        <span class=n>ans</span> <span class=o>=</span> <span class=n>std</span><span class=o>::</span><span class=n>max</span><span class=p>(</span><span class=n>ans</span><span class=p>,</span> <span class=n>cal</span><span class=p>(</span><span class=n>p1</span><span class=p>));</span>
+        <span class=n>ans</span> <span class=o>=</span> <span class=n>std</span><span class=o>::</span><span class=n>max</span><span class=p>(</span><span class=n>ans</span><span class=p>,</span> <span class=n>cal</span><span class=p>(</span><span class=n>p2</span><span class=p>));</span>
+        <span class=k>if</span><span class=p>(</span><span class=n>dcmp</span><span class=p>(</span><span class=n>p1</span><span class=p>.</span><span class=n>x</span> <span class=o>-</span> <span class=n>p2</span><span class=p>.</span><span class=n>x</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>0</span> <span class=o>&amp;&amp;</span> <span class=n>dcmp</span><span class=p>(</span><span class=n>p1</span><span class=p>.</span><span class=n>y</span> <span class=o>-</span> <span class=n>p2</span><span class=p>.</span><span class=n>y</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+            <span class=n>db</span> <span class=n>tmpx</span> <span class=o>=</span> <span class=n>p1</span><span class=p>.</span><span class=n>x</span> <span class=o>/</span> <span class=mi>2</span> <span class=o>-</span> <span class=n>p1</span><span class=p>.</span><span class=n>y</span> <span class=o>*</span> <span class=p>(</span><span class=n>p2</span><span class=p>.</span><span class=n>x</span> <span class=o>-</span> <span class=n>p1</span><span class=p>.</span><span class=n>x</span><span class=p>)</span> <span class=o>/</span> <span class=p>(</span><span class=mi>2</span> <span class=o>*</span> <span class=p>(</span><span class=n>p2</span><span class=p>.</span><span class=n>y</span> <span class=o>-</span> <span class=n>p1</span><span class=p>.</span><span class=n>y</span><span class=p>));</span>
+            <span class=n>db</span> <span class=n>tmpy</span> <span class=o>=</span> <span class=n>p1</span><span class=p>.</span><span class=n>y</span> <span class=o>/</span> <span class=mi>2</span> <span class=o>-</span> <span class=n>p1</span><span class=p>.</span><span class=n>x</span> <span class=o>*</span> <span class=p>(</span><span class=n>p2</span><span class=p>.</span><span class=n>y</span> <span class=o>-</span> <span class=n>p1</span><span class=p>.</span><span class=n>y</span><span class=p>)</span> <span class=o>/</span> <span class=p>(</span><span class=mi>2</span> <span class=o>*</span> <span class=p>(</span><span class=n>p2</span><span class=p>.</span><span class=n>x</span> <span class=o>-</span> <span class=n>p1</span><span class=p>.</span><span class=n>x</span><span class=p>));</span>
+            <span class=k>if</span><span class=p>(</span><span class=n>tmpx</span> <span class=o>&gt;=</span> <span class=n>std</span><span class=o>::</span><span class=n>min</span><span class=p>(</span><span class=n>p1</span><span class=p>.</span><span class=n>x</span><span class=p>,</span><span class=n>p2</span><span class=p>.</span><span class=n>x</span><span class=p>)</span> <span class=o>&amp;&amp;</span> <span class=n>tmpx</span> <span class=o>&lt;=</span> <span class=n>std</span><span class=o>::</span><span class=n>max</span><span class=p>(</span><span class=n>p1</span><span class=p>.</span><span class=n>x</span><span class=p>,</span> <span class=n>p2</span><span class=p>.</span><span class=n>x</span><span class=p>)){</span>
+                <span class=n>ans</span> <span class=o>=</span> <span class=n>std</span><span class=o>::</span><span class=n>max</span><span class=p>(</span><span class=n>ans</span><span class=p>,</span> <span class=n>tmpx</span> <span class=o>*</span> <span class=n>tmpy</span><span class=p>);</span>
+            <span class=p>}</span>
+        <span class=p>}</span>          
+    <span class=p>}</span>
+    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;%.10Lf</span><span class=se>\\</span><span class=s>n&#34;</span><span class=p>,</span> <span class=n>ans</span><span class=p>);</span>
+<span class=p>}</span>
+</code></pre></div>
+</section>
+<footer class=article-footer>
+<section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span>
+</section>
+</footer>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css integrity=sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js integrity=sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8 crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js integrity=sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})})</script>
+</article>
+<aside class=related-contents--wrapper>
+<h2 class=section-title>相关文章</h2>
+<div class=related-contents>
+<div class="flex article-list--tile">
+<article>
+<a href=/p/2018-icpc-asia-singapore-regional-contest/>
+<div class=article-details>
+<h2 class=article-title>2018 ICPC Asia Singapore Regional Contest</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/2018-hdu%E5%A4%9A%E6%A0%A1%E7%AC%AC%E4%B8%89%E5%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>2018 hdu多校第三场</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/2018-hdu%E5%A4%9A%E6%A0%A1%E7%AC%AC%E5%9B%9B%E5%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>2018 hdu多校第四场</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/2018-%E7%89%9B%E5%AE%A2%E5%A4%9A%E6%A0%A1%E7%AC%AC%E4%B8%80%E5%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>2018 牛客多校第一场</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/2018-%E7%89%9B%E5%AE%A2%E5%A4%9A%E6%A0%A1%E7%AC%AC%E4%BA%94%E5%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>2018 牛客多校第五场</h2>
+</div>
+</a>
+</article>
+</div>
+</div>
+</aside>
+<footer class=site-footer>
+<section class=copyright>
+&copy;
+2020 -
+2021 miao
+</section>
+<section class=powerby>
+Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> <br>
+Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a>
+</section>
+</footer>
+<div class=pswp tabindex=-1 role=dialog aria-hidden=true>
+<div class=pswp__bg></div>
+<div class=pswp__scroll-wrap>
+<div class=pswp__container>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+</div>
+<div class="pswp__ui pswp__ui--hidden">
+<div class=pswp__top-bar>
+<div class=pswp__counter></div>
+<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+<div class=pswp__preloader>
+<div class=pswp__preloader__icn>
+<div class=pswp__preloader__cut>
+<div class=pswp__preloader__donut></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+<div class=pswp__share-tooltip></div>
+</div>
+<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+</button>
+<div class=pswp__caption>
+<div class=pswp__caption__center></div>
+</div>
+</div>
+</div>
+</div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous>
+</main>
+<aside class="sidebar right-sidebar sticky">
+<section class="widget archives">
+<div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+</div>
+<h2 class="widget-title section-title">目录</h2>
+<div class=widget--toc>
+<nav id=TableOfContents>
+<ol>
+<li><a href=#i---random-manhattan-distance>I - Random Manhattan Distance</a>
+<ol>
+<li><a href=#题意>题意</a></li>
+<li><a href=#分析>分析</a></li>
+<li><a href=#代码>代码</a></li>
+</ol>
+</li>
+<li><a href=#j---mobilization>J - Mobilization</a>
+<ol>
+<li><a href=#题意-1>题意</a></li>
+<li><a href=#分析-1>分析</a></li>
+<li><a href=#代码-1>代码</a></li>
+</ol>
+</li>
+</ol>
+</nav>
+</div>
+</section>
+</aside>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const a=document.createElement('link');a.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",a.type="text/css",a.rel="stylesheet",document.head.appendChild(a)})()</script>
+</body>
+</html>

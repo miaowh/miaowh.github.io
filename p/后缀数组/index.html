@@ -1,0 +1,314 @@
+<!doctype html><html lang=en-us>
+<head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="参考文章： 2009NOI 国家集训队论文——罗穗骞 代码解释 sa[i]：表示排名为i的后缀的起始位置 rank[i]：表示从i开始的后缀的排名 height[i] = LCP(suffix(sa[i-1]), suffi"><title>后缀数组</title>
+<link rel=canonical href=https://www.miaowh.com/p/%E5%90%8E%E7%BC%80%E6%95%B0%E7%BB%84/>
+<link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="后缀数组">
+<meta property="og:description" content="参考文章： 2009NOI 国家集训队论文——罗穗骞 代码解释 sa[i]：表示排名为i的后缀的起始位置 rank[i]：表示从i开始的后缀的排名 height[i] = LCP(suffix(sa[i-1]), suffi">
+<meta property="og:url" content="https://www.miaowh.com/p/%E5%90%8E%E7%BC%80%E6%95%B0%E7%BB%84/">
+<meta property="og:site_name" content="miao">
+<meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-12-12T00:00:00+00:00"><meta property="article:modified_time" content="2021-12-12T00:00:00+00:00">
+<meta name=twitter:title content="后缀数组">
+<meta name=twitter:description content="参考文章： 2009NOI 国家集训队论文——罗穗骞 代码解释 sa[i]：表示排名为i的后缀的起始位置 rank[i]：表示从i开始的后缀的排名 height[i] = LCP(suffix(sa[i-1]), suffi">
+</head>
+<body class="article-page has-toc">
+<script>(function(){const a='StackColorScheme';localStorage.getItem(a)||localStorage.setItem(a,"auto")})()</script><script>(function(){const b='StackColorScheme',a=localStorage.getItem(b),c=window.matchMedia('(prefers-color-scheme: dark)').matches===!0;a=='dark'||a==='auto'&&c?document.documentElement.dataset.scheme='dark':document.documentElement.dataset.scheme='light'})()</script>
+<div class="container main-container flex
+extended">
+<div id=article-toolbar>
+<a href=https://www.miaowh.com class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg>
+<span>返回</span>
+</a>
+</div>
+<main class="main full-width">
+<article class=main-article>
+<header class=article-header>
+<div class=article-details>
+<header class=article-category>
+<a href=/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/>
+算法与数据结构
+</a>
+</header>
+<h2 class=article-title>
+<a href=/p/%E5%90%8E%E7%BC%80%E6%95%B0%E7%BB%84/>后缀数组</a>
+</h2>
+<footer class=article-time>
+<div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Dec 12, 2021</time>
+</div>
+</footer>
+</div>
+</header>
+<section class=article-content>
+<p>参考文章： <a class=link href=https://wenku.baidu.com/view/228caa45b307e87101f696a8.html target=_blank rel=noopener>2009NOI 国家集训队论文——罗穗骞</a></p>
+<h2 id=代码解释>代码解释</h2>
+<p><code>sa[i]</code>：表示排名为<code>i</code>的后缀的起始位置</p>
+<p><code>rank[i]</code>：表示从<code>i</code>开始的后缀的排名</p>
+<p><code>height[i] = LCP(suffix(sa[i-1]), suffix(sa[i]))</code>：排名为<code>i-1</code>和排名为<code>i</code>的两个后缀的最长公共前缀</p>
+<p><code>h[i] = height[rank[i]]</code>：起始位置为<code>i</code>的后缀和它前一名的后缀的最长公共前缀</p>
+<p><strong>性质：</strong></p>
+<ol>
+<li>$suffix(i)$和$suffix(k)$的最长公共前缀为$height[rank[i]+1]&mldr;height[rank[k]]$中的最小值。</li>
+<li>$h[i] \geq h[i-1] - 1$</li>
+</ol>
+<h2 id=例题>例题</h2>
+<p>{% note primary %}</p>
+<h4 id=给定一个字符串求某两个后缀的最长公共前缀>给定一个字符串，求某两个后缀的最长公共前缀</h4>
+<p>性质：<code>LCP(suffix(i), suffix(j)) = min { height[rank[i]+1], ..., height[rank[j]] }</code>
+因此可以用<code>rmq</code>预处理区间最小值，然后 O(1)查询
+{% endnote %}</p>
+<p>{% note info %}</p>
+<h4 id=可重叠最长重复子串>可重叠最长重复子串</h4>
+<p>重复子串：若字符串<code>R</code>在字符串<code>L</code>中至少出现两次，则称<code>R</code>是<code>L</code>的重复子串
+因为相邻排名的两个后缀串之间的<code>lcp</code>一定比不相邻的两个后缀串的<code>lcp</code>大，因此答案是<code>height</code>数组的最大值。
+{% endnote %}</p>
+<p>{% note success %}</p>
+<h4 id=不可重叠最长重复字串poj1743>不可重叠最长重复字串（poj1743）</h4>
+<p>二分答案，然后按答案对<code>height</code>进行分组，使得同一组内的后缀串相互之间的<code>lcp</code>都大于等于二分的答案。
+如果一组内的最大的 sa 值减去最小的 sa 值大于等于二分的答案，那么就是可行的。用并查集维护一下就好。
+要注意的是，本题是对差分后的数组建后缀数组，因此首先要保证数组元素非负，然后是差分后的公共前缀的长度的意义是不同的。
+{% endnote %}</p>
+<p>{% note primary %}</p>
+<h4 id=可重叠的出现至少-k-次的重复子串poj3261>可重叠的出现至少 k 次的重复子串（poj3261）</h4>
+<p>同样还是按<code>height</code>分组的思想。二分答案，分组后要求同一组内的后缀串数量大于等于 k，则满足条件。
+{% endnote %}</p>
+<p>{% note info %}</p>
+<h4 id=本质不同的子串数量spoj705>本质不同的子串数量（spoj705）</h4>
+<p>$ans = \sum_{i=1}^{n}(n-sa[i]-height[i])$
+{% endnote %}</p>
+<p>{% note success %}</p>
+<h4 id=最长回文子串ural1297>最长回文子串（ural1297）</h4>
+<p>将字符串逆转后和原字符串拼接起来，拼接前要加一个从未出现过的字符在原字符串后面，这样可以防止匹配越界。
+然后枚举回文串的中心点，讨论一下长度的奇偶。</p>
+<p>{% endnote %}</p>
+<p>{% note primary %}</p>
+<h4 id=连续重复子串poj2406>连续重复子串（poj2406）</h4>
+<p>给定一个字符串$L$，已知这个字符串是由某个字符串$S$重复$R$次而得到的，求$R$的最大值。
+枚举长度$k$，如果$lcp(0,0+k) == n-k$那么$k$是满足条件的，$R = \frac{n}{k}$，因此找到最小的$k$即可。
+要注意字符串长度为$10^6$，直接建后缀数组是会$MLE$（因为$dp$数组爆了）。但是我们并不需要$rmq$，因为第一个参数一直为$0$，所以我们可以将$dp$数组降到一维。
+{% endnote %}</p>
+<p>{% note info %}</p>
+<h4 id=重复次数最多的连续重复子串spoj687>重复次数最多的连续重复子串（spoj687）</h4>
+<p>给定一个字符串$L$，求$L$的所有子串中重复次数最多的连续重复子串。
+枚举长度$k$，那么$s[0],s[0+k]&mldr;,s[0+nk]$，中一定有两个相邻的会被选上，但显然这不一定是两个重复子串的开头。
+开头可能会在前面$k-1$个位置中。
+$n + \frac{n}{2} + \frac{n}{3} + &mldr;.. = n\log n$
+{% endnote %}</p>
+<p>{% note success %}</p>
+<h4 id=最长公共子串ural1517>最长公共子串（ural1517）</h4>
+<p>给定两个字符串 $A$ 和 $B$，求最长公共子串。
+将两个字符串拼接起来，中间加个从未出现的字符。排名相邻且不在同一字符串的两个后缀的 $lcp$ 的最大值为答案。
+{% endnote %}</p>
+<p>{% note primary %}</p>
+<h4 id=长度不小于-k-的公共子串的个数pku3415>长度不小于 k 的公共子串的个数(pku3415)</h4>
+<p>{% endnote %}</p>
+<p>{% note info %}</p>
+<h4 id=不小于-k-个字符串中的最长子串pku3294>不小于 k 个字符串中的最长子串(pku3294)</h4>
+<p>{% endnote %}</p>
+<p>{% note success %}</p>
+<h4 id=每个字符串至少出现两次且不重叠的最长子串spoj220>每个字符串至少出现两次且不重叠的最长子串(spoj220)</h4>
+<p>{% endnote %}</p>
+<p>{% note primary %}</p>
+<h4 id=出现或反转后出现在每个字符串中的最长子串pku3294>出现或反转后出现在每个字符串中的最长子串(PKU3294)</h4>
+<p>{% endnote %}</p>
+<h2 id=模板>模板</h2>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=c1>// build 复杂度:O(nlogn)
+</span><span class=c1>// 需要保证s[n]为之前没有出现过的最小的字符。必要时手动添加，或者自动&#39;\\0&#39;。
+</span><span class=c1>// sa下标从1开始编号，sa[0]表示加入的最小字符&#39;\\0&#39;
+</span><span class=c1></span><span class=k>struct</span> <span class=nc>SA</span> <span class=p>{</span>
+    <span class=kt>char</span> <span class=n>s</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+    <span class=kt>int</span> <span class=n>sa</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>t</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>t2</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>c</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>rank</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>height</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+    <span class=kt>int</span> <span class=n>dp</span><span class=p>[</span><span class=n>maxn</span><span class=p>][</span><span class=mi>30</span><span class=p>];</span>
+    <span class=kt>void</span> <span class=nf>build</span><span class=p>(</span><span class=kt>int</span> <span class=n>m</span><span class=p>,</span> <span class=kt>int</span> <span class=n>n</span><span class=p>)</span> <span class=p>{</span>  <span class=c1>// [0,m-1]字符集, [0,n-1] 字符串
+</span><span class=c1></span>        <span class=n>n</span><span class=o>++</span><span class=p>;</span>
+        <span class=kt>int</span> <span class=o>*</span><span class=n>x</span> <span class=o>=</span> <span class=n>t</span><span class=p>,</span> <span class=o>*</span><span class=n>y</span> <span class=o>=</span> <span class=n>t2</span><span class=p>;</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>m</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>c</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>c</span><span class=p>[</span><span class=n>x</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>s</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span><span class=o>++</span><span class=p>;</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>m</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>c</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>+=</span> <span class=n>c</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>];</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>n</span> <span class=o>-</span> <span class=mi>1</span><span class=p>;</span> <span class=o>~</span><span class=n>i</span><span class=p>;</span> <span class=n>i</span><span class=o>--</span><span class=p>)</span> <span class=n>sa</span><span class=p>[</span><span class=o>--</span><span class=n>c</span><span class=p>[</span><span class=n>x</span><span class=p>[</span><span class=n>i</span><span class=p>]]]</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>k</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>k</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>k</span> <span class=o>&lt;&lt;=</span> <span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+            <span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>n</span> <span class=o>-</span> <span class=n>k</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>y</span><span class=p>[</span><span class=n>p</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span>
+            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+                <span class=k>if</span> <span class=p>(</span><span class=n>sa</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&gt;=</span> <span class=n>k</span><span class=p>)</span> <span class=n>y</span><span class=p>[</span><span class=n>p</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>sa</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>-</span> <span class=n>k</span><span class=p>;</span>
+            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>m</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>c</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>c</span><span class=p>[</span><span class=n>x</span><span class=p>[</span><span class=n>y</span><span class=p>[</span><span class=n>i</span><span class=p>]]]</span><span class=o>++</span><span class=p>;</span>
+            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>m</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>c</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>+=</span> <span class=n>c</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>];</span>
+            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>n</span> <span class=o>-</span> <span class=mi>1</span><span class=p>;</span> <span class=o>~</span><span class=n>i</span><span class=p>;</span> <span class=n>i</span><span class=o>--</span><span class=p>)</span> <span class=n>sa</span><span class=p>[</span><span class=o>--</span><span class=n>c</span><span class=p>[</span><span class=n>x</span><span class=p>[</span><span class=n>y</span><span class=p>[</span><span class=n>i</span><span class=p>]]]]</span> <span class=o>=</span> <span class=n>y</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+            <span class=n>swap</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>);</span>
+            <span class=n>p</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+            <span class=n>x</span><span class=p>[</span><span class=n>sa</span><span class=p>[</span><span class=mi>0</span><span class=p>]]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+                <span class=n>x</span><span class=p>[</span><span class=n>sa</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span> <span class=o>=</span>
+                    <span class=n>y</span><span class=p>[</span><span class=n>sa</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]]</span> <span class=o>==</span> <span class=n>y</span><span class=p>[</span><span class=n>sa</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span> <span class=o>&amp;&amp;</span> <span class=n>y</span><span class=p>[</span><span class=n>sa</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=n>k</span><span class=p>]</span> <span class=o>==</span> <span class=n>y</span><span class=p>[</span><span class=n>sa</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>+</span> <span class=n>k</span><span class=p>]</span>
+                        <span class=o>?</span> <span class=n>p</span> <span class=o>-</span> <span class=mi>1</span>
+                        <span class=o>:</span> <span class=n>p</span><span class=o>++</span><span class=p>;</span>
+            <span class=k>if</span> <span class=p>(</span><span class=n>p</span> <span class=o>&gt;=</span> <span class=n>n</span><span class=p>)</span> <span class=k>break</span><span class=p>;</span>
+            <span class=n>m</span> <span class=o>=</span> <span class=n>p</span><span class=p>;</span>
+        <span class=p>}</span>
+        <span class=n>n</span><span class=o>--</span><span class=p>;</span>
+        <span class=kt>int</span> <span class=n>k</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>rank</span><span class=p>[</span><span class=n>sa</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+            <span class=k>if</span> <span class=p>(</span><span class=n>k</span><span class=p>)</span> <span class=n>k</span><span class=o>--</span><span class=p>;</span>
+            <span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=n>sa</span><span class=p>[</span><span class=n>rank</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>-</span> <span class=mi>1</span><span class=p>];</span>
+            <span class=k>while</span> <span class=p>(</span><span class=n>s</span><span class=p>[</span><span class=n>i</span> <span class=o>+</span> <span class=n>k</span><span class=p>]</span> <span class=o>==</span> <span class=n>s</span><span class=p>[</span><span class=n>j</span> <span class=o>+</span> <span class=n>k</span><span class=p>])</span> <span class=n>k</span><span class=o>++</span><span class=p>;</span>
+            <span class=n>height</span><span class=p>[</span><span class=n>rank</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span> <span class=o>=</span> <span class=n>k</span><span class=p>;</span>    <span class=c1>// h[i] = height[rank[i]]
+</span><span class=c1></span>        <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=kt>void</span> <span class=nf>initRmq</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=n>height</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=p>(</span><span class=mi>1</span> <span class=o>&lt;&lt;</span> <span class=n>j</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span>
+            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>+</span> <span class=p>(</span><span class=mi>1</span> <span class=o>&lt;&lt;</span> <span class=n>j</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+                <span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>min</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span> <span class=o>-</span> <span class=mi>1</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span> <span class=o>+</span> <span class=p>(</span><span class=mi>1</span> <span class=o>&lt;&lt;</span> <span class=p>(</span><span class=n>j</span> <span class=o>-</span> <span class=mi>1</span><span class=p>))][</span><span class=n>j</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]);</span>
+    <span class=p>}</span>
+    <span class=kt>int</span> <span class=nf>rmq</span><span class=p>(</span><span class=kt>int</span> <span class=n>l</span><span class=p>,</span> <span class=kt>int</span> <span class=n>r</span><span class=p>)</span> <span class=p>{</span>
+        <span class=kt>int</span> <span class=n>k</span> <span class=o>=</span> <span class=mi>31</span> <span class=o>-</span> <span class=n>__builtin_clz</span><span class=p>(</span><span class=n>r</span> <span class=o>-</span> <span class=n>l</span> <span class=o>+</span> <span class=mi>1</span><span class=p>);</span>
+        <span class=k>return</span> <span class=n>min</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>l</span><span class=p>][</span><span class=n>k</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>r</span> <span class=o>-</span> <span class=p>(</span><span class=mi>1</span> <span class=o>&lt;&lt;</span> <span class=n>k</span><span class=p>)</span> <span class=o>+</span> <span class=mi>1</span><span class=p>][</span><span class=n>k</span><span class=p>]);</span>
+    <span class=p>}</span>
+    <span class=kt>int</span> <span class=nf>lcp</span><span class=p>(</span><span class=kt>int</span> <span class=n>a</span><span class=p>,</span> <span class=kt>int</span> <span class=n>b</span><span class=p>)</span> <span class=p>{</span>
+        <span class=c1>// 返回起始地址为a和b的两个后缀串的lcp
+</span><span class=c1></span>        <span class=n>a</span> <span class=o>=</span> <span class=n>rank</span><span class=p>[</span><span class=n>a</span><span class=p>],</span> <span class=n>b</span> <span class=o>=</span> <span class=n>rank</span><span class=p>[</span><span class=n>b</span><span class=p>];</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>a</span> <span class=o>&gt;</span> <span class=n>b</span><span class=p>)</span> <span class=n>swap</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>b</span><span class=p>);</span>
+        <span class=k>return</span> <span class=n>rmq</span><span class=p>(</span><span class=n>a</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>b</span><span class=p>);</span>
+    <span class=p>}</span>
+<span class=p>}</span> <span class=n>sa</span><span class=p>;</span>
+</code></pre></div>
+</section>
+<footer class=article-footer>
+<section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span>
+</section>
+</footer>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css integrity=sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js integrity=sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8 crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js integrity=sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})})</script>
+</article>
+<aside class=related-contents--wrapper>
+<h2 class=section-title>相关文章</h2>
+<div class=related-contents>
+<div class="flex article-list--tile">
+<article>
+<a href=/p/ac%E8%87%AA%E5%8A%A8%E6%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>AC自动机</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/bellman-ford/>
+<div class=article-details>
+<h2 class=article-title>Bellman-Ford</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/cdq%E5%88%86%E6%B2%BB/>
+<div class=article-details>
+<h2 class=article-title>CDQ分治</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/dijkstra/>
+<div class=article-details>
+<h2 class=article-title>Dijkstra</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/fft/>
+<div class=article-details>
+<h2 class=article-title>FFT</h2>
+</div>
+</a>
+</article>
+</div>
+</div>
+</aside>
+<footer class=site-footer>
+<section class=copyright>
+&copy;
+2020 -
+2021 miao
+</section>
+<section class=powerby>
+Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> <br>
+Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a>
+</section>
+</footer>
+<div class=pswp tabindex=-1 role=dialog aria-hidden=true>
+<div class=pswp__bg></div>
+<div class=pswp__scroll-wrap>
+<div class=pswp__container>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+</div>
+<div class="pswp__ui pswp__ui--hidden">
+<div class=pswp__top-bar>
+<div class=pswp__counter></div>
+<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+<div class=pswp__preloader>
+<div class=pswp__preloader__icn>
+<div class=pswp__preloader__cut>
+<div class=pswp__preloader__donut></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+<div class=pswp__share-tooltip></div>
+</div>
+<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+</button>
+<div class=pswp__caption>
+<div class=pswp__caption__center></div>
+</div>
+</div>
+</div>
+</div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous>
+</main>
+<aside class="sidebar right-sidebar sticky">
+<section class="widget archives">
+<div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+</div>
+<h2 class="widget-title section-title">目录</h2>
+<div class=widget--toc>
+<nav id=TableOfContents>
+<ol>
+<li><a href=#代码解释>代码解释</a></li>
+<li><a href=#例题>例题</a>
+<ol>
+<li>
+<ol>
+<li><a href=#给定一个字符串求某两个后缀的最长公共前缀>给定一个字符串，求某两个后缀的最长公共前缀</a></li>
+<li><a href=#可重叠最长重复子串>可重叠最长重复子串</a></li>
+<li><a href=#不可重叠最长重复字串poj1743>不可重叠最长重复字串（poj1743）</a></li>
+<li><a href=#可重叠的出现至少-k-次的重复子串poj3261>可重叠的出现至少 k 次的重复子串（poj3261）</a></li>
+<li><a href=#本质不同的子串数量spoj705>本质不同的子串数量（spoj705）</a></li>
+<li><a href=#最长回文子串ural1297>最长回文子串（ural1297）</a></li>
+<li><a href=#连续重复子串poj2406>连续重复子串（poj2406）</a></li>
+<li><a href=#重复次数最多的连续重复子串spoj687>重复次数最多的连续重复子串（spoj687）</a></li>
+<li><a href=#最长公共子串ural1517>最长公共子串（ural1517）</a></li>
+<li><a href=#长度不小于-k-的公共子串的个数pku3415>长度不小于 k 的公共子串的个数(pku3415)</a></li>
+<li><a href=#不小于-k-个字符串中的最长子串pku3294>不小于 k 个字符串中的最长子串(pku3294)</a></li>
+<li><a href=#每个字符串至少出现两次且不重叠的最长子串spoj220>每个字符串至少出现两次且不重叠的最长子串(spoj220)</a></li>
+<li><a href=#出现或反转后出现在每个字符串中的最长子串pku3294>出现或反转后出现在每个字符串中的最长子串(PKU3294)</a></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><a href=#模板>模板</a></li>
+</ol>
+</nav>
+</div>
+</section>
+</aside>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const a=document.createElement('link');a.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",a.type="text/css",a.rel="stylesheet",document.head.appendChild(a)})()</script>
+</body>
+</html>

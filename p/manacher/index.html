@@ -1,0 +1,285 @@
+<!doctype html><html lang=en-us>
+<head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="本文转载自： 链接
+问题定义 最长回文子串问题：给定一个字符串，求它的最长回文子串长度。
+如果一个字符串正着读和反着读是一样的，那它就是回文串。下面是一些回文串的实例：
+12321 a aba abba aaaa tattarrattat（牛津英语词典中最长的回文单词） "><title>Manacher</title>
+<link rel=canonical href=https://www.miaowh.com/p/manacher/>
+<link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="Manacher">
+<meta property="og:description" content="本文转载自： 链接
+问题定义 最长回文子串问题：给定一个字符串，求它的最长回文子串长度。
+如果一个字符串正着读和反着读是一样的，那它就是回文串。下面是一些回文串的实例：
+12321 a aba abba aaaa tattarrattat（牛津英语词典中最长的回文单词） ">
+<meta property="og:url" content="https://www.miaowh.com/p/manacher/">
+<meta property="og:site_name" content="miao">
+<meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-12-12T00:00:00+00:00"><meta property="article:modified_time" content="2021-12-12T00:00:00+00:00">
+<meta name=twitter:title content="Manacher">
+<meta name=twitter:description content="本文转载自： 链接
+问题定义 最长回文子串问题：给定一个字符串，求它的最长回文子串长度。
+如果一个字符串正着读和反着读是一样的，那它就是回文串。下面是一些回文串的实例：
+12321 a aba abba aaaa tattarrattat（牛津英语词典中最长的回文单词） ">
+</head>
+<body class="article-page has-toc">
+<script>(function(){const a='StackColorScheme';localStorage.getItem(a)||localStorage.setItem(a,"auto")})()</script><script>(function(){const b='StackColorScheme',a=localStorage.getItem(b),c=window.matchMedia('(prefers-color-scheme: dark)').matches===!0;a=='dark'||a==='auto'&&c?document.documentElement.dataset.scheme='dark':document.documentElement.dataset.scheme='light'})()</script>
+<div class="container main-container flex
+extended">
+<div id=article-toolbar>
+<a href=https://www.miaowh.com class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg>
+<span>返回</span>
+</a>
+</div>
+<main class="main full-width">
+<article class=main-article>
+<header class=article-header>
+<div class=article-details>
+<header class=article-category>
+<a href=/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/>
+算法与数据结构
+</a>
+</header>
+<h2 class=article-title>
+<a href=/p/manacher/>Manacher</a>
+</h2>
+<footer class=article-time>
+<div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Dec 12, 2021</time>
+</div>
+</footer>
+</div>
+</header>
+<section class=article-content>
+<p>本文转载自： <a class=link href=https://segmentfault.com/a/1190000003914228 target=_blank rel=noopener>链接</a></p>
+<h2 id=问题定义>问题定义</h2>
+<p>最长回文子串问题：给定一个字符串，求它的最长回文子串长度。</p>
+<p>如果一个字符串正着读和反着读是一样的，那它就是回文串。下面是一些回文串的实例：</p>
+<pre tabindex=0><code>12321 a aba abba aaaa tattarrattat（牛津英语词典中最长的回文单词）
+</code></pre><h2 id=brute-force-解法>Brute-force 解法</h2>
+<p>对于最长回文子串问题，最简单粗暴的办法是：找到字符串的所有子串，遍历每一个子串以验证它们是否为回文串。一个子串由子串的起点和终点确定，因此对于一个长度为 n 的字符串，共有$n^2$个子串。这些子串的平均长度大约是$n/2$，因此这个解法的时间复杂度是$O(n^3)$。</p>
+<h3 id=改进的方法>改进的方法</h3>
+<p>显然所有的回文串都是对称的。长度为奇数回文串以最中间字符的位置为对称轴左右对称，而长度为偶数的回文串的对称轴在中间两个字符之间的空隙。可否利用这种对称性来提高算法效率呢？答案是肯定的。我们知道整个字符串中的所有字符，以及字符间的空隙，都可能是某个回文子串的对称轴位置。可以遍历这些位置，在每个位置上同时向左和向右扩展，直到左右两边的字符不同，或者达到边界。对于一个长度为 n 的字符串，这样的位置一共有 2n-1 个，在每个位置上平均大约要进行$n/4$次字符比较，于是此算法的时间复杂度是$O(n^2)$。</p>
+<h2 id=manacher-算法>Manacher 算法</h2>
+<p>对于一个比较长的字符串，$O(n^2)$的时间复杂度是难以接受的。Can we do better?</p>
+<p>先来看看解法 2 存在的缺陷。</p>
+<blockquote>
+<p>1.由于回文串长度的奇偶性造成了不同性质的对称轴位置，解法 2 要对两种情况分别处理；</p>
+<p>2.很多子串被重复多次访问，造成较差的时间效率。</p>
+</blockquote>
+<p>缺陷 2）可以通过这个直观的例子体现：</p>
+<pre tabindex=0><code>char: a b a b a
+  i : 0 1 2 3 4
+</code></pre><p>当 i==1，和 i ==2 时，左边的子串 aba 分别被遍历了一次。</p>
+<p>如果我们能改善解法 2 的不足，就很有希望能提高算法的效率。Manacher 正是针对这些问题改进算法。</p>
+<h3 id=解决长度奇偶性带来的对称轴位置问题>解决长度奇偶性带来的对称轴位置问题</h3>
+<p>Manacher 算法首先对字符串做一个预处理，在所有的空隙位置(包括首尾)插入同样的符号，要求这个符号是不会在原串中出现的。这样会使得所有的串都是奇数长度的。以插入#号为例：</p>
+<pre tabindex=0><code>aba  ———&gt;  #a#b#a#
+abba ———&gt;  #a#b#b#a#
+</code></pre><p>插入的是同样的符号，且符号不存在于原串，因此子串的回文性不受影响，原来是回文的串，插完之后还是回文的，原来不是回文的，依然不会是回文。</p>
+<h3 id=解决重复访问的问题>解决重复访问的问题</h3>
+<p>我们把一个回文串中最左或最右位置的字符与其对称轴的距离称为回文半径。Manacher 定义了一个回文半径数组 RL，用 RL[i]表示以第 i 个字符为对称轴的回文串的回文半径。我们一般对字符串从左往右处理，因此这里定义 RL[i]为第 i 个字符为对称轴的回文串的最右一个字符与字符 i 的距离。对于上面插入分隔符之后的两个串，可以得到 RL 数组：</p>
+<pre tabindex=0><code>char:    # a # b # a #
+ RL :    1 2 1 4 1 2 1
+RL-1:    0 1 0 3 0 1 0
+  i :    0 1 2 3 4 5 6
+
+char:    # a # b # b # a #
+ RL :    1 2 1 2 5 2 1 2 1
+RL-1:    0 1 0 1 4 1 0 1 0
+  i :    0 1 2 3 4 5 6 7 8
+</code></pre><p>上面我们还求了一下 RL[i]-1。通过观察可以发现，RL[i]-1 的值，正是在原本那个没有插入过分隔符的串中，以位置 i 为对称轴的最长回文串的长度。那么只要我们求出了 RL 数组，就能得到最长回文子串的长度。</p>
+<p>于是问题变成了，怎样高效地求的 RL 数组。基本思路是利用回文串的对称性，扩展回文串。</p>
+<p>我们再引入一个辅助变量 MaxRight，表示当前访问到的所有回文子串，所能触及的最右一个字符的位置。另外还要记录下 MaxRight 对应的回文串的对称轴所在的位置，记为 pos，它们的位置关系如下。</p>
+<p><figure>
+<a href=http://ozrmo3j0k.bkt.clouddn.com/Ma1.png>
+<img src=http://ozrmo3j0k.bkt.clouddn.com/Ma1.png loading=lazy>
+</a>
+</figure></p>
+<p>我们从左往右地访问字符串来求 RL，假设当前访问到的位置为 i，即要求 RL[i]，在对应上图，i 必然是在 po 右边的(obviously)。但我们更关注的是，i 是在 MaxRight 的左边还是右边。我们分情况来讨论。</p>
+<p>1）当 i 在 MaxRight 的左边</p>
+<p>情况 1)可以用下图来刻画：</p>
+<p><figure>
+<a href=http://ozrmo3j0k.bkt.clouddn.com/Ma2.png>
+<img src=http://ozrmo3j0k.bkt.clouddn.com/Ma2.png loading=lazy>
+</a>
+</figure></p>
+<p>我们知道，图中两个红色块之间（包括红色块）的串是回文的；并且以 i 为对称轴的回文串，是与红色块间的回文串有所重叠的。我们找到 i 关于 pos 的对称位置 j，这个 j 对应的 RL[j]我们是已经算过的。根据回文串的对称性，以 i 为对称轴的回文串和以 j 为对称轴的回文串，有一部分是相同的。这里又有两种细分的情况。</p>
+<p>以 j 为对称轴的回文串比较短，短到像下图这样。</p>
+<p><figure>
+<a href=http://ozrmo3j0k.bkt.clouddn.com/Ma3.png>
+<img src=http://ozrmo3j0k.bkt.clouddn.com/Ma3.png loading=lazy>
+</a>
+</figure></p>
+<p>这时我们知道 RL[i]至少不会小于 RL[j]，并且已经知道了部分的以 i 为中心的回文串，于是可以令 RL[i]=RL[j]。但是以 i 为对称轴的回文串可能实际上更长，因此我们试着以 i 为对称轴，继续往左右两边扩展，直到左右两边字符不同，或者到达边界。</p>
+<p>以 j 为对称轴的回文串很长，这么长：</p>
+<p><figure>
+<a href=http://ozrmo3j0k.bkt.clouddn.com/Ma4.png>
+<img src=http://ozrmo3j0k.bkt.clouddn.com/Ma4.png loading=lazy>
+</a>
+</figure></p>
+<p>这时，我们只能确定，两条蓝线之间的部分（即不超过 MaxRight 的部分）是回文的，于是从这个长度开始，尝试以 i 为中心向左右两边扩展，，直到左右两边字符不同，或者到达边界。</p>
+<p>不论以上哪种情况，之后都要尝试更新 MaxRight 和 pos，因为有可能得到更大的 MaxRight。</p>
+<p>具体操作如下：</p>
+<p>step 1: 令 RL[i]=min(RL[2*pos-i], MaxRight-i)
+step 2: 以 i 为中心扩展回文串，直到左右两边字符不同，或者到达边界。
+step 3: 更新 MaxRight 和 pos
+2）当 i 在 MaxRight 的右边</p>
+<p><figure>
+<a href=http://ozrmo3j0k.bkt.clouddn.com/Ma5.png>
+<img src=http://ozrmo3j0k.bkt.clouddn.com/Ma5.png loading=lazy>
+</a>
+</figure></p>
+<p>遇到这种情况，说明以 i 为对称轴的回文串还没有任何一个部分被访问过，于是只能从 i 的左右两边开始尝试扩展了，当左右两边字符不同，或者到达字符串边界时停止。然后更新 MaxRight 和 pos。</p>
+<h2 id=代码>代码</h2>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=k>const</span> <span class=kt>int</span> <span class=n>maxn</span> <span class=o>=</span> <span class=mf>1e6</span><span class=o>+</span><span class=mi>5</span><span class=p>;</span>
+<span class=kt>char</span> <span class=n>Ma</span><span class=p>[</span><span class=n>maxn</span><span class=o>*</span><span class=mi>2</span><span class=p>];</span>    <span class=c1>//插入新字符后的字符串
+</span><span class=c1></span><span class=kt>int</span> <span class=n>Mp</span><span class=p>[</span><span class=n>maxn</span><span class=o>*</span><span class=mi>2</span><span class=p>];</span>     <span class=c1>//以当前位置为对称轴的回文半径
+</span><span class=c1></span>
+<span class=kt>void</span> <span class=nf>Manacher</span><span class=p>(</span><span class=n>string</span> <span class=o>&amp;</span><span class=n>s</span><span class=p>){</span>
+    <span class=kt>int</span> <span class=n>l</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>Ma</span><span class=p>[</span><span class=n>l</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=sc>&#39;$&#39;</span><span class=p>;</span>      <span class=c1>//防止越界
+</span><span class=c1></span>    <span class=n>Ma</span><span class=p>[</span><span class=n>l</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=sc>&#39;#&#39;</span><span class=p>;</span>
+    <span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span><span class=o>=</span><span class=mi>0</span><span class=p>;</span><span class=n>i</span><span class=o>&lt;</span><span class=n>s</span><span class=p>.</span><span class=n>size</span><span class=p>();</span><span class=n>i</span><span class=o>++</span><span class=p>){</span>
+        <span class=n>Ma</span><span class=p>[</span><span class=n>l</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>s</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+        <span class=n>Ma</span><span class=p>[</span><span class=n>l</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=sc>&#39;#&#39;</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=n>Ma</span><span class=p>[</span><span class=n>l</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>      <span class=c1>//结尾设置为空字符，防止越界
+</span><span class=c1></span>    <span class=kt>int</span> <span class=n>mx</span> <span class=o>=</span> <span class=mi>1</span><span class=p>,</span><span class=n>id</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span><span class=o>=</span><span class=mi>1</span><span class=p>;</span><span class=n>i</span><span class=o>&lt;</span><span class=n>l</span><span class=p>;</span><span class=n>i</span><span class=o>++</span><span class=p>){</span>
+        <span class=n>Mp</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>mx</span> <span class=o>&gt;</span> <span class=n>i</span> <span class=o>?</span> <span class=n>min</span><span class=p>(</span><span class=n>Mp</span><span class=p>[</span><span class=mi>2</span><span class=o>*</span><span class=n>id</span><span class=o>-</span><span class=n>i</span><span class=p>],</span><span class=n>mx</span><span class=o>-</span><span class=n>i</span><span class=p>)</span> <span class=o>:</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=k>while</span><span class=p>(</span><span class=n>Ma</span><span class=p>[</span><span class=n>i</span><span class=o>+</span><span class=n>Mp</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span> <span class=o>==</span> <span class=n>Ma</span><span class=p>[</span><span class=n>i</span><span class=o>-</span><span class=n>Mp</span><span class=p>[</span><span class=n>i</span><span class=p>]])</span> <span class=n>Mp</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>++</span><span class=p>;</span> <span class=c1>//扩展
+</span><span class=c1></span>        <span class=k>if</span><span class=p>(</span><span class=n>i</span> <span class=o>+</span> <span class=n>Mp</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>mx</span><span class=p>){</span>
+            <span class=n>mx</span> <span class=o>=</span> <span class=n>i</span> <span class=o>+</span> <span class=n>Mp</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+            <span class=n>id</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+
+</code></pre></div>
+</section>
+<footer class=article-footer>
+<section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span>
+</section>
+</footer>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css integrity=sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js integrity=sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8 crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js integrity=sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})})</script>
+</article>
+<aside class=related-contents--wrapper>
+<h2 class=section-title>相关文章</h2>
+<div class=related-contents>
+<div class="flex article-list--tile">
+<article>
+<a href=/p/ac%E8%87%AA%E5%8A%A8%E6%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>AC自动机</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/bellman-ford/>
+<div class=article-details>
+<h2 class=article-title>Bellman-Ford</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/cdq%E5%88%86%E6%B2%BB/>
+<div class=article-details>
+<h2 class=article-title>CDQ分治</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/dijkstra/>
+<div class=article-details>
+<h2 class=article-title>Dijkstra</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/fft/>
+<div class=article-details>
+<h2 class=article-title>FFT</h2>
+</div>
+</a>
+</article>
+</div>
+</div>
+</aside>
+<footer class=site-footer>
+<section class=copyright>
+&copy;
+2020 -
+2021 miao
+</section>
+<section class=powerby>
+Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> <br>
+Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a>
+</section>
+</footer>
+<div class=pswp tabindex=-1 role=dialog aria-hidden=true>
+<div class=pswp__bg></div>
+<div class=pswp__scroll-wrap>
+<div class=pswp__container>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+</div>
+<div class="pswp__ui pswp__ui--hidden">
+<div class=pswp__top-bar>
+<div class=pswp__counter></div>
+<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+<div class=pswp__preloader>
+<div class=pswp__preloader__icn>
+<div class=pswp__preloader__cut>
+<div class=pswp__preloader__donut></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+<div class=pswp__share-tooltip></div>
+</div>
+<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+</button>
+<div class=pswp__caption>
+<div class=pswp__caption__center></div>
+</div>
+</div>
+</div>
+</div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous>
+</main>
+<aside class="sidebar right-sidebar sticky">
+<section class="widget archives">
+<div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+</div>
+<h2 class="widget-title section-title">目录</h2>
+<div class=widget--toc>
+<nav id=TableOfContents>
+<ol>
+<li><a href=#问题定义>问题定义</a></li>
+<li><a href=#brute-force-解法>Brute-force 解法</a>
+<ol>
+<li><a href=#改进的方法>改进的方法</a></li>
+</ol>
+</li>
+<li><a href=#manacher-算法>Manacher 算法</a>
+<ol>
+<li><a href=#解决长度奇偶性带来的对称轴位置问题>解决长度奇偶性带来的对称轴位置问题</a></li>
+<li><a href=#解决重复访问的问题>解决重复访问的问题</a></li>
+</ol>
+</li>
+<li><a href=#代码>代码</a></li>
+</ol>
+</nav>
+</div>
+</section>
+</aside>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const a=document.createElement('link');a.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",a.type="text/css",a.rel="stylesheet",document.head.appendChild(a)})()</script>
+</body>
+</html>

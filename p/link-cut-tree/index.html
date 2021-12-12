@@ -1,0 +1,379 @@
+<!doctype html><html lang=en-us>
+<head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="参考博客 LCT $LCT$ 通过维护一个 $Splay$ 森林，以起到维护一棵树的信息的作用。 能够动态地维护（加边删边）应该是它最大的特点了（毕竟名字就是 $Link-Cut"><title>Link Cut Tree</title>
+<link rel=canonical href=https://www.miaowh.com/p/link-cut-tree/>
+<link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="Link Cut Tree">
+<meta property="og:description" content="参考博客 LCT $LCT$ 通过维护一个 $Splay$ 森林，以起到维护一棵树的信息的作用。 能够动态地维护（加边删边）应该是它最大的特点了（毕竟名字就是 $Link-Cut">
+<meta property="og:url" content="https://www.miaowh.com/p/link-cut-tree/">
+<meta property="og:site_name" content="miao">
+<meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-12-12T00:00:00+00:00"><meta property="article:modified_time" content="2021-12-12T00:00:00+00:00">
+<meta name=twitter:title content="Link Cut Tree">
+<meta name=twitter:description content="参考博客 LCT $LCT$ 通过维护一个 $Splay$ 森林，以起到维护一棵树的信息的作用。 能够动态地维护（加边删边）应该是它最大的特点了（毕竟名字就是 $Link-Cut">
+</head>
+<body class="article-page has-toc">
+<script>(function(){const a='StackColorScheme';localStorage.getItem(a)||localStorage.setItem(a,"auto")})()</script><script>(function(){const b='StackColorScheme',a=localStorage.getItem(b),c=window.matchMedia('(prefers-color-scheme: dark)').matches===!0;a=='dark'||a==='auto'&&c?document.documentElement.dataset.scheme='dark':document.documentElement.dataset.scheme='light'})()</script>
+<div class="container main-container flex
+extended">
+<div id=article-toolbar>
+<a href=https://www.miaowh.com class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg>
+<span>返回</span>
+</a>
+</div>
+<main class="main full-width">
+<article class=main-article>
+<header class=article-header>
+<div class=article-details>
+<header class=article-category>
+<a href=/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/>
+算法与数据结构
+</a>
+</header>
+<h2 class=article-title>
+<a href=/p/link-cut-tree/>Link Cut Tree</a>
+</h2>
+<footer class=article-time>
+<div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Dec 12, 2021</time>
+</div>
+</footer>
+</div>
+</header>
+<section class=article-content>
+<p><a class=link href=https://www.cnblogs.com/flashhu/p/8324551.html target=_blank rel=noopener>参考博客</a></p>
+<h2 id=lct>LCT</h2>
+<p>$LCT$ 通过维护一个 $Splay$ 森林，以起到维护一棵树的信息的作用。</p>
+<p>能够动态地维护（加边删边）应该是它最大的特点了（毕竟名字就是 $Link-Cut$。</p>
+<p>在 $LCT$ 中，一棵树的边被分为实边（偏爱边）和虚边，每个实边连接的连通块（子树）用一个 $Splay$ 来维护。这个 $Splay$ 中的信息仅仅是这个由实边组成的子树的信息，不会包含子树外的点。</p>
+<p>注意：原树中的边并不会因为LCT的旋转或者换根等操作而发生改变（只会影响边的虚实）。</p>
+<h3 id=实边和虚边的定义>实边和虚边的定义</h3>
+<p>因为实边和 $Splay$ 是紧密相关的，所以我们不妨先看看这些 $Splay$ 的特点。</p>
+<p>每个 $Splay$ 中的<strong>偏序关系</strong>是点在原树中的<strong>深度</strong>，且每个 $Splay$ 中无深度相同的两个点。每个 $Spaly$ 的中序遍历，在原树上是一条<strong>深度递增的树链</strong>（非常重要）。</p>
+<p>那也就要求了每个父结点和它的儿子结点之间<strong>最多</strong>只有一条实边，其余都是虚边。</p>
+<p>每条实边都只属于一个 $Splay$。</p>
+<h3 id=如何用-splay-森林维护一棵树的信息不同-splay-之间是如何联系的>如何用 $Splay$ 森林维护一棵树的信息（不同 $Splay$ 之间是如何联系的？）</h3>
+<p>所有的<strong>虚边</strong>实际上都是一棵 $Splay$ 中 深度最低的结点 的父亲，指向另一颗（深度更低）$Splay$ 的某个结点。</p>
+<p>但对于一棵 $Splay$ 来说，它不可能通过查找儿子而进入到另一颗 $Splay$ 中。换句话说，只能通过向祖先寻找的方式，进入到另一棵（深度更低）$Splay$ 中。这就是为什么可以做到每棵 $Splay$ 只维护了当前子树的信息，而不涉及其它的结点。</p>
+<h3 id=lct-的灵魂>LCT 的灵魂</h3>
+<h4 id=虚边和实边的转换>虚边和实边的转换</h4>
+<p>我们可以通过将结点 $x$ 到根的路径的边都设置为实边（偏爱路径），这样这条链的信息就在一棵 $Splay$ 中，我们可以快速地维护这条树链上的信息。</p>
+<p>我们可以用 <code>access(x)</code> 来表示这一操作。</p>
+<p>具体做法：</p>
+<ol>
+<li>先将结点 $x$ 旋转到当前 $Splay$ 的根，然后它的右儿子（深度较大）是不在根到 $x$ 的这条树链上的，因此要置空。但此时其右儿子的祖先还是 $x$ ，这条边也就变成了虚边。</li>
+<li>然后寻找祖先 $y = fa<input checked disabled type=checkbox> $，将 $y$ 旋转到它所在 $Splay$ 的根后，再将右儿子置为 $x$。因为 $y$ 的深度是 $x$ 所在 $Splay$ 的最低深度 减一，所以 $y$ 的右儿子必然不在 $x$ 到根的这条树链上。</li>
+<li>不断重复 $2$ 操作，直到 $y$ 的父亲为空。</li>
+</ol>
+<h4 id=换根>换根</h4>
+<p>通过之前的操作，我们可以很容易的维护一条根到任意结点的树链信息。但如果我们想维护一条普通的树链（端点可能不为根），这时候就需要换根操作。</p>
+<p>我们可以用 <code>makeroot(x)</code> 来表示这一操作。</p>
+<p>具体做法：</p>
+<ol>
+<li><code>access(x)</code></li>
+<li>将 $x$ 转到 $Splay$ 的根.</li>
+<li>将 $x$ 的儿子互换。因为 $x$ 是 $Splay$ 中深度最大的结点，因此此时 $x$ 的右儿子为空。而根结点一定是深度最低的点，所以我们只要将 $x$ 的儿子互换，$x$ 就成为了深度最低的点，即原树的根。</li>
+</ol>
+<h3 id=其它操作>其它操作</h3>
+<h4 id=split>Split</h4>
+<p><code>split(u,v)</code> 将树链 $(u,v)$ 放到一个 $Splay$ 中。</p>
+<p>具体做法：</p>
+<ol>
+<li><code>makeroot(u)</code></li>
+<li><code>access(v)</code></li>
+<li>将 $v$ 转到当前 $Splay$ 的根。这样 $v$ 点的信息就是整棵 $Splay$，即 $(u,v)$ 的信息。</li>
+</ol>
+<h4 id=插入>插入</h4>
+<p>插入的顺序其实没有关系，因为树的结构是固定的，想要谁当根只需要做一下换根操作即可。</p>
+<h4 id=区间更新>区间更新</h4>
+<p>对于树链 $(u,v)$，先要通过 <code>split(u,v)</code> 将 $(u,v)$ 链上的点都放到一个 $Splay$ 中。</p>
+<p>然后对 $v$ 打上对应的标记即可。</p>
+<h4 id=单点更新>单点更新</h4>
+<p>要注意因为某些区间标记（比如区间取反）会影响点权，因此我们必须在更新之前先把区间标记都做掉。</p>
+<p>具体做法：</p>
+<ol>
+<li><code>access(x)</code></li>
+<li>将 $x$ 旋转到当前 $Splay$ 的根</li>
+<li>更新 $x$ 的值，同时 $pushup(x)$</li>
+</ol>
+<h3 id=lct的作用>LCT的作用：</h3>
+<ol>
+<li>维护树链的信息</li>
+<li>动态维护树的连通性：因为LCT本质是个Splay森林，所以可能存在不连通的情况。可以通过找各自原树的根是否相同来判断是否连通。（有些卡常题目可以用并查集来替代 $find$ 判联通性）</li>
+</ol>
+<h3 id=时间复杂度>时间复杂度：</h3>
+<p>势能分析据说 $O((n + m) \log n)$，常数血大。</p>
+<h3 id=边权模型>边权模型：</h3>
+<p>对于每条边建一个点，这个点的权值即为边权。</p>
+<h3 id=维护连通块信息>维护连通块信息</h3>
+<p>一个点的连通块信息由一个实边组成的 $Splay$ 和多个虚边连接的 $Splay$ 的构成。</p>
+<p>所以对于每个点，我们只要再维护一个所有虚边连接的 $Splay$ 的信息之和。</p>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=kt>int</span> <span class=n>si</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span> <span class=err>所有虚子树信息</span>
+
+<span class=kr>inline</span> <span class=kt>void</span> <span class=nf>pushup</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+  <span class=n>sum</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>val</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>+</span> <span class=n>sum</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>]]</span> <span class=o>+</span> <span class=n>sum</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]]</span> <span class=o>+</span> <span class=n>si</span><span class=p>[</span><span class=n>x</span><span class=p>];</span>
+<span class=p>}</span>
+<span class=kt>void</span> <span class=nf>access</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+  <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>y</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>x</span><span class=p>;</span> <span class=n>y</span> <span class=o>=</span> <span class=n>x</span><span class=p>,</span> <span class=n>x</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>])</span> <span class=p>{</span>
+    <span class=n>splay</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+    <span class=n>si</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>+=</span> <span class=n>sum</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]];</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>y</span><span class=p>;</span>
+    <span class=n>si</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>-=</span> <span class=n>sum</span><span class=p>[</span><span class=n>y</span><span class=p>];</span>
+    <span class=n>pushup</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+  <span class=p>}</span>
+<span class=p>}</span>
+
+
+<span class=c1>// 因为 sum[x] 会影响到 y 的祖先，所以先把 y 转到根
+</span><span class=c1>// 保证连边合法
+</span><span class=c1></span><span class=kr>inline</span> <span class=kt>void</span> <span class=nf>link</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=n>y</span><span class=p>)</span> <span class=p>{</span>
+  <span class=n>split</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>);</span>
+  <span class=n>si</span><span class=p>[</span><span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>y</span><span class=p>]</span> <span class=o>+=</span> <span class=n>sum</span><span class=p>[</span><span class=n>x</span><span class=p>];</span>
+  <span class=n>pushup</span><span class=p>(</span><span class=n>y</span><span class=p>);</span>
+<span class=p>}</span>
+<span class=c1>// 不保证
+</span><span class=c1></span><span class=kr>inline</span> <span class=kt>bool</span> <span class=nf>link</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=n>y</span><span class=p>)</span> <span class=p>{</span>
+  <span class=n>makeroot</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+  <span class=k>if</span> <span class=p>(</span><span class=n>findroot</span><span class=p>(</span><span class=n>y</span><span class=p>)</span> <span class=o>==</span> <span class=n>x</span><span class=p>)</span> <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+  <span class=n>si</span><span class=p>[</span><span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>y</span><span class=p>]</span> <span class=o>+=</span> <span class=n>sum</span><span class=p>[</span><span class=n>x</span><span class=p>];</span>
+  <span class=n>pushup</span><span class=p>(</span><span class=n>y</span><span class=p>);</span>
+  <span class=k>return</span> <span class=mi>1</span><span class=p>;</span>
+<span class=p>}</span>
+
+</code></pre></div><h3 id=模板>模板</h3>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp>
+<span class=c1>// 1-index
+</span><span class=c1></span><span class=k>struct</span> <span class=nc>LCT</span> <span class=p>{</span>
+  <span class=kt>int</span> <span class=n>val</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>sum</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>  <span class=c1>// 基于点权
+</span><span class=c1></span>  <span class=kt>int</span> <span class=n>rev</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>ch</span><span class=p>[</span><span class=n>maxn</span><span class=p>][</span><span class=mi>2</span><span class=p>],</span> <span class=n>fa</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+  <span class=kt>int</span> <span class=n>stk</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+  <span class=kr>inline</span> <span class=kt>void</span> <span class=nf>init</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>)</span> <span class=p>{</span>  <span class=c1>// 初始化点权（一般不需要）
+</span><span class=c1></span>    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>scanf</span><span class=p>(</span><span class=s>&#34;%d&#34;</span><span class=p>,</span> <span class=n>val</span> <span class=o>+</span> <span class=n>i</span><span class=p>);</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>fa</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>rev</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=kr>inline</span> <span class=kt>bool</span> <span class=nf>isroot</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=n>ch</span><span class=p>[</span><span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]][</span><span class=mi>0</span><span class=p>]</span> <span class=o>!=</span> <span class=n>x</span> <span class=o>&amp;&amp;</span> <span class=n>ch</span><span class=p>[</span><span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]][</span><span class=mi>1</span><span class=p>]</span> <span class=o>!=</span> <span class=n>x</span><span class=p>;</span> <span class=p>}</span>
+  <span class=kr>inline</span> <span class=kt>bool</span> <span class=nf>get</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=n>ch</span><span class=p>[</span><span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]][</span><span class=mi>1</span><span class=p>]</span> <span class=o>==</span> <span class=n>x</span><span class=p>;</span> <span class=p>}</span>
+  <span class=kr>inline</span> <span class=kt>void</span> <span class=nf>reverse</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>swap</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>],</span> <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]);</span>
+    <span class=n>rev</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>^=</span> <span class=mi>1</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=kr>inline</span> <span class=kt>void</span> <span class=nf>pushdown</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>rev</span><span class=p>[</span><span class=n>x</span><span class=p>])</span> <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>])</span> <span class=n>reverse</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>]);</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>])</span> <span class=n>reverse</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]);</span>
+      <span class=n>rev</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>^=</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=p>}</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 因为儿子可能会改变，因此每次必须重新计算
+</span><span class=c1></span>  <span class=kr>inline</span> <span class=kt>void</span> <span class=nf>pushup</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span> <span class=n>sum</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>val</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>+</span> <span class=n>sum</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>]]</span> <span class=o>+</span> <span class=n>sum</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]];</span> <span class=p>}</span>
+
+  <span class=c1>// 避免单独使用：不能直接旋转根
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>rotate</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>y</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>],</span> <span class=n>z</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>y</span><span class=p>],</span> <span class=n>d</span> <span class=o>=</span> <span class=n>get</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>isroot</span><span class=p>(</span><span class=n>y</span><span class=p>))</span> <span class=n>ch</span><span class=p>[</span><span class=n>z</span><span class=p>][</span><span class=n>get</span><span class=p>(</span><span class=n>y</span><span class=p>)]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+    <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>z</span><span class=p>;</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>y</span><span class=p>][</span><span class=n>d</span><span class=p>]</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>d</span> <span class=o>^</span> <span class=mi>1</span><span class=p>],</span> <span class=n>fa</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>y</span><span class=p>][</span><span class=n>d</span><span class=p>]]</span> <span class=o>=</span> <span class=n>y</span><span class=p>;</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>d</span> <span class=o>^</span> <span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>y</span><span class=p>,</span> <span class=n>fa</span><span class=p>[</span><span class=n>y</span><span class=p>]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+    <span class=n>pushup</span><span class=p>(</span><span class=n>y</span><span class=p>),</span> <span class=n>pushup</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=c1>// 将x旋转到Splay的根
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>splay</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>top</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>stk</span><span class=p>[</span><span class=o>++</span><span class=n>top</span><span class=p>]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span> <span class=o>!</span><span class=n>isroot</span><span class=p>(</span><span class=n>i</span><span class=p>);</span> <span class=n>i</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>i</span><span class=p>])</span> <span class=n>stk</span><span class=p>[</span><span class=o>++</span><span class=n>top</span><span class=p>]</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>top</span><span class=p>;</span> <span class=n>i</span><span class=p>;</span> <span class=n>i</span><span class=o>--</span><span class=p>)</span> <span class=n>pushdown</span><span class=p>(</span><span class=n>stk</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>f</span><span class=p>;</span> <span class=o>!</span><span class=n>isroot</span><span class=p>(</span><span class=n>x</span><span class=p>);</span> <span class=n>rotate</span><span class=p>(</span><span class=n>x</span><span class=p>))</span>
+      <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>isroot</span><span class=p>(</span><span class=n>f</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]))</span> <span class=n>rotate</span><span class=p>(</span><span class=n>get</span><span class=p>(</span><span class=n>x</span><span class=p>)</span> <span class=o>==</span> <span class=n>get</span><span class=p>(</span><span class=n>f</span><span class=p>)</span> <span class=o>?</span> <span class=nl>f</span> <span class=p>:</span> <span class=n>x</span><span class=p>);</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 将根到x的路径拉到一棵Splay中
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>access</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>y</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>x</span><span class=p>;</span> <span class=n>y</span> <span class=o>=</span> <span class=n>x</span><span class=p>,</span> <span class=n>x</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>])</span> <span class=n>splay</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>y</span><span class=p>,</span> <span class=n>pushup</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=c1>// 让x成为原树的根，x为深度最低的点，其左子树为空
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>makeroot</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span> <span class=n>access</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>splay</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>reverse</span><span class=p>(</span><span class=n>x</span><span class=p>);</span> <span class=p>}</span>
+
+  <span class=c1>// 找x所在原树的根。主要用来判联通性，如果find(x) = find(y)
+</span><span class=c1></span>  <span class=c1>// 则x,y在同一棵树中。
+</span><span class=c1></span>  <span class=kt>int</span> <span class=nf>find</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>access</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>splay</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>])</span> <span class=n>pushdown</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>x</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>];</span>
+    <span class=n>splay</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+    <span class=k>return</span> <span class=n>x</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=c1>// 加边，y为深度最低的点（顺序无所谓）
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>link</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=n>y</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>makeroot</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+    <span class=c1>// if(find(y) != x) fa[x] = y; // 存在不合法加边
+</span><span class=c1></span>    <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>y</span><span class=p>,</span> <span class=n>splay</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=c1>// 删边
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>cut</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=n>y</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>split</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>),</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>y</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>pushup</span><span class=p>(</span><span class=n>y</span><span class=p>);</span>
+    <span class=cm>/*
+</span><span class=cm>      存在不合法删边
+</span><span class=cm>      makeroot(x);
+</span><span class=cm>      if(find(y) != x || fa[y] != x || ch[y][0]) return false;
+</span><span class=cm>      fa[y] = ch[x][1] = 0;
+</span><span class=cm>      pushup(x);
+</span><span class=cm>      return true;
+</span><span class=cm>    */</span>
+  <span class=p>}</span>
+  <span class=c1>// 将x到y的路径拉到一棵Splay中，y为Splay的根
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>split</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=n>y</span><span class=p>)</span> <span class=p>{</span> <span class=n>makeroot</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>access</span><span class=p>(</span><span class=n>y</span><span class=p>),</span> <span class=n>splay</span><span class=p>(</span><span class=n>y</span><span class=p>);</span> <span class=p>}</span>
+
+  <span class=c1>// 单点修改
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>update</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=n>v</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>access</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>splay</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+    <span class=n>val</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>v</span><span class=p>;</span>
+    <span class=n>pushup</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 区间修改
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>update_seg</span><span class=p>(</span><span class=kt>int</span> <span class=n>u</span><span class=p>,</span> <span class=kt>int</span> <span class=n>v</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>split</span><span class=p>(</span><span class=n>u</span><span class=p>,</span> <span class=n>v</span><span class=p>);</span>
+    <span class=c1>// tag(v); 打对应标记，记得更改对sum的影响
+</span><span class=c1></span>  <span class=p>}</span>
+<span class=p>}</span> <span class=n>lct</span><span class=p>;</span>
+</code></pre></div>
+</section>
+<footer class=article-footer>
+<section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span>
+</section>
+</footer>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css integrity=sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js integrity=sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8 crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js integrity=sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})})</script>
+</article>
+<aside class=related-contents--wrapper>
+<h2 class=section-title>相关文章</h2>
+<div class=related-contents>
+<div class="flex article-list--tile">
+<article>
+<a href=/p/ac%E8%87%AA%E5%8A%A8%E6%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>AC自动机</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/bellman-ford/>
+<div class=article-details>
+<h2 class=article-title>Bellman-Ford</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/cdq%E5%88%86%E6%B2%BB/>
+<div class=article-details>
+<h2 class=article-title>CDQ分治</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/dijkstra/>
+<div class=article-details>
+<h2 class=article-title>Dijkstra</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/fft/>
+<div class=article-details>
+<h2 class=article-title>FFT</h2>
+</div>
+</a>
+</article>
+</div>
+</div>
+</aside>
+<footer class=site-footer>
+<section class=copyright>
+&copy;
+2020 -
+2021 miao
+</section>
+<section class=powerby>
+Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> <br>
+Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a>
+</section>
+</footer>
+<div class=pswp tabindex=-1 role=dialog aria-hidden=true>
+<div class=pswp__bg></div>
+<div class=pswp__scroll-wrap>
+<div class=pswp__container>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+</div>
+<div class="pswp__ui pswp__ui--hidden">
+<div class=pswp__top-bar>
+<div class=pswp__counter></div>
+<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+<div class=pswp__preloader>
+<div class=pswp__preloader__icn>
+<div class=pswp__preloader__cut>
+<div class=pswp__preloader__donut></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+<div class=pswp__share-tooltip></div>
+</div>
+<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+</button>
+<div class=pswp__caption>
+<div class=pswp__caption__center></div>
+</div>
+</div>
+</div>
+</div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous>
+</main>
+<aside class="sidebar right-sidebar sticky">
+<section class="widget archives">
+<div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+</div>
+<h2 class="widget-title section-title">目录</h2>
+<div class=widget--toc>
+<nav id=TableOfContents>
+<ol>
+<li><a href=#lct>LCT</a>
+<ol>
+<li><a href=#实边和虚边的定义>实边和虚边的定义</a></li>
+<li><a href=#如何用-splay-森林维护一棵树的信息不同-splay-之间是如何联系的>如何用 $Splay$ 森林维护一棵树的信息（不同 $Splay$ 之间是如何联系的？）</a></li>
+<li><a href=#lct-的灵魂>LCT 的灵魂</a>
+<ol>
+<li><a href=#虚边和实边的转换>虚边和实边的转换</a></li>
+<li><a href=#换根>换根</a></li>
+</ol>
+</li>
+<li><a href=#其它操作>其它操作</a>
+<ol>
+<li><a href=#split>Split</a></li>
+<li><a href=#插入>插入</a></li>
+<li><a href=#区间更新>区间更新</a></li>
+<li><a href=#单点更新>单点更新</a></li>
+</ol>
+</li>
+<li><a href=#lct的作用>LCT的作用：</a></li>
+<li><a href=#时间复杂度>时间复杂度：</a></li>
+<li><a href=#边权模型>边权模型：</a></li>
+<li><a href=#维护连通块信息>维护连通块信息</a></li>
+<li><a href=#模板>模板</a></li>
+</ol>
+</li>
+</ol>
+</nav>
+</div>
+</section>
+</aside>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const a=document.createElement('link');a.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",a.type="text/css",a.rel="stylesheet",document.head.appendChild(a)})()</script>
+</body>
+</html>

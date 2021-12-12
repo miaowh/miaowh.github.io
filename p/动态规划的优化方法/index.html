@@ -1,0 +1,211 @@
+<!doctype html><html lang=en-us>
+<head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="单调队列优化 对于状态是一维,转移也是一维的dp, 可以用单调队列进行优化. $dp[i] = min( A(i) + B(k) ) , k \in [l,i-1]$ 那么可以用一个单调队列来维护$B(k)$, 这样"><title>动态规划的优化方法</title>
+<link rel=canonical href=https://www.miaowh.com/p/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%9A%84%E4%BC%98%E5%8C%96%E6%96%B9%E6%B3%95/>
+<link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="动态规划的优化方法">
+<meta property="og:description" content="单调队列优化 对于状态是一维,转移也是一维的dp, 可以用单调队列进行优化. $dp[i] = min( A(i) + B(k) ) , k \in [l,i-1]$ 那么可以用一个单调队列来维护$B(k)$, 这样">
+<meta property="og:url" content="https://www.miaowh.com/p/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%9A%84%E4%BC%98%E5%8C%96%E6%96%B9%E6%B3%95/">
+<meta property="og:site_name" content="miao">
+<meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-12-12T00:00:00+00:00"><meta property="article:modified_time" content="2021-12-12T00:00:00+00:00">
+<meta name=twitter:title content="动态规划的优化方法">
+<meta name=twitter:description content="单调队列优化 对于状态是一维,转移也是一维的dp, 可以用单调队列进行优化. $dp[i] = min( A(i) + B(k) ) , k \in [l,i-1]$ 那么可以用一个单调队列来维护$B(k)$, 这样">
+</head>
+<body class="article-page has-toc">
+<script>(function(){const a='StackColorScheme';localStorage.getItem(a)||localStorage.setItem(a,"auto")})()</script><script>(function(){const b='StackColorScheme',a=localStorage.getItem(b),c=window.matchMedia('(prefers-color-scheme: dark)').matches===!0;a=='dark'||a==='auto'&&c?document.documentElement.dataset.scheme='dark':document.documentElement.dataset.scheme='light'})()</script>
+<div class="container main-container flex
+extended">
+<div id=article-toolbar>
+<a href=https://www.miaowh.com class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg>
+<span>返回</span>
+</a>
+</div>
+<main class="main full-width">
+<article class=main-article>
+<header class=article-header>
+<div class=article-details>
+<header class=article-category>
+<a href=/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/>
+算法与数据结构
+</a>
+</header>
+<h2 class=article-title>
+<a href=/p/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E7%9A%84%E4%BC%98%E5%8C%96%E6%96%B9%E6%B3%95/>动态规划的优化方法</a>
+</h2>
+<footer class=article-time>
+<div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Dec 12, 2021</time>
+</div>
+</footer>
+</div>
+</header>
+<section class=article-content>
+<h2 id=单调队列优化>单调队列优化</h2>
+<p>对于状态是一维,转移也是一维的dp, 可以用单调队列进行优化.</p>
+<p>$dp[i] = min( A(i) + B(k) ) , k \in [l,i-1]$</p>
+<p>那么可以用一个单调队列来维护$B(k)$, 这样可以把复杂度降到O(n)</p>
+<h2 id=斜率优化>斜率优化</h2>
+<p>问题： 设 $f(i) = max\{s[i] \times x[k] + y[k]\}, k \in [1,i-1]$, 现在要求出所有$f(i), i \in [1,n]$</p>
+<p>考虑两个决策 $j$ 和 $k$ （$j &lt; k$），如果 $k$ 比 $j$ 优，则</p>
+<p>$$s[i] \times x[j] + y[j] \leq s[i] \times x[k] + y[k]$$</p>
+<p>化简得:</p>
+<p>$$\frac{y_j - y_k}{x_k - x_j} \leq s_i$$</p>
+<p>这里假设 $x_k > x_j$ （不然需要变号）</p>
+<p>不等式左边可以理解为一个斜率，我们把它设为$slope(j,k)$</p>
+<p>可以发现，如果 $slope(q[r-1],q[r]) \geq slope(q[r],i)$，那么当前者成立时，后者必定成立。 即 $q[r]$ 决策优于 $q[r-1]$ 决策时， $i$ 必然优于 $q[r]$，所以 $q[r]$ 就没有存在的必要了。因此我们可以用一个斜率单调递增的队列来维护所有决策点。</p>
+<p>每次决策的时候，只要在队列中找到满足下面条件的元素进行转移即可：</p>
+<p>$$\begin{cases}
+slope(q[p-1],q[p]) \leq s[i]\\\\<br>
+slope(q[p],q[p+1]) > s[i]
+\end{cases}$$</p>
+<p>因为队列是按斜率单调递增的，因此我们可以去二分这个决策点。</p>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=kt>int</span> <span class=n>l</span> <span class=o>=</span> <span class=mi>1</span><span class=p>,</span> <span class=n>r</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+<span class=n>q</span><span class=p>[</span><span class=n>l</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>  <span class=c1>// 0 这个决策点要赋初值
+</span><span class=c1></span><span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+  <span class=kt>int</span> <span class=n>p</span><span class=p>,</span> <span class=n>L</span> <span class=o>=</span> <span class=n>l</span><span class=p>,</span> <span class=n>R</span> <span class=o>=</span> <span class=n>r</span><span class=p>;</span>
+  <span class=k>while</span> <span class=p>(</span><span class=n>L</span> <span class=o>&lt;=</span> <span class=n>R</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>mid</span> <span class=o>=</span> <span class=n>L</span> <span class=o>+</span> <span class=n>R</span> <span class=o>&gt;&gt;</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>slope</span><span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>mid</span> <span class=o>-</span> <span class=mi>1</span><span class=p>],</span> <span class=n>q</span><span class=p>[</span><span class=n>mid</span><span class=p>])</span> <span class=o>&lt;=</span> <span class=n>s</span><span class=p>[</span><span class=n>i</span><span class=p>])</span> <span class=p>{</span>
+      <span class=n>p</span> <span class=o>=</span> <span class=n>mid</span><span class=p>;</span>
+      <span class=n>L</span> <span class=o>=</span> <span class=n>mid</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=p>}</span> <span class=k>else</span>
+      <span class=n>R</span> <span class=o>=</span> <span class=n>mid</span> <span class=o>-</span> <span class=mi>1</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=c1>// q[p] 为决策点
+</span><span class=c1></span>  <span class=k>while</span> <span class=p>(</span><span class=n>l</span> <span class=o>&lt;</span> <span class=n>r</span> <span class=o>&amp;&amp;</span> <span class=n>slope</span><span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>r</span> <span class=o>-</span> <span class=mi>1</span><span class=p>],</span> <span class=n>q</span><span class=p>[</span><span class=n>r</span><span class=p>])</span> <span class=o>&gt;=</span> <span class=n>slope</span><span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>r</span><span class=p>],</span> <span class=n>i</span><span class=p>))</span> <span class=n>r</span><span class=o>--</span><span class=p>;</span>
+  <span class=n>q</span><span class=p>[</span><span class=n>r</span><span class=p>]</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span>
+<span class=p>}</span>
+<span class=c1>// slope的比较一般写成交叉相乘的形式
+</span></code></pre></div><hr>
+<p><strong>特别的</strong>对于 $s[i]$ 是<strong>单调不降</strong>的情况：</p>
+<p>因为当 $slope(q[l], q[l+1]) \leq s[i]$ 时，必然有 $slope(q[l], q[l+1]) &lt; s[i+1]$。因此 $q[l+1]$ 这个决策将会永远优于 $q[l]$ 这个决策。因此 $q[l]$ 就没有存在的必要了。</p>
+<p>因此我们可以将转移的复杂度从上面的 $O(\log(n))$ 优化为均摊 $O(1)$。</p>
+<p>每次决策的时候，如果对于队头元素有 $slope(q[l], q[l+1]) \leq s[i]$，这说明 $q[l+1]$ 比 $q[l]$ 优，我们就可以把 $q[l]$ 移出队列。（如果 $s[i]$ 不是单调的，就不可以移出队列！）</p>
+<p>每次向队列加入新的元素时，如果有 $slope(q[r-1],q[r]) \geq slope(q[r], i)$，那么说明若 $q[r]$ 比 $q[r-1]$ 优，那么 $i$ 一定比 $q[r]$ 优，所以去 $q[r]$ 就没有存在的必要，因此可以把 $q[r]$ 移除队列。</p>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=kt>int</span> <span class=n>l</span> <span class=o>=</span> <span class=mi>1</span><span class=p>,</span> <span class=n>r</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+<span class=n>q</span><span class=p>[</span><span class=n>l</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>  <span class=c1>// 0 这个决策点要赋初值
+</span><span class=c1></span><span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+  <span class=k>while</span> <span class=p>(</span><span class=n>l</span> <span class=o>&lt;</span> <span class=n>r</span> <span class=o>&amp;&amp;</span> <span class=n>slope</span><span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>l</span><span class=p>],</span> <span class=n>q</span><span class=p>[</span><span class=n>l</span> <span class=o>+</span> <span class=mi>1</span><span class=p>])</span> <span class=o>&lt;=</span> <span class=n>s</span><span class=p>[</span><span class=n>i</span><span class=p>])</span> <span class=n>l</span><span class=o>++</span><span class=p>;</span>
+  <span class=c1>// q[l] 为决策点
+</span><span class=c1></span>  <span class=k>while</span> <span class=p>(</span><span class=n>l</span> <span class=o>&lt;</span> <span class=n>r</span> <span class=o>&amp;&amp;</span> <span class=n>slope</span><span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>r</span> <span class=o>-</span> <span class=mi>1</span><span class=p>],</span> <span class=n>q</span><span class=p>[</span><span class=n>r</span><span class=p>])</span> <span class=o>&gt;=</span> <span class=n>slope</span><span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>r</span><span class=p>],</span> <span class=n>i</span><span class=p>))</span> <span class=n>r</span><span class=o>--</span><span class=p>;</span>
+  <span class=n>q</span><span class=p>[</span><span class=n>r</span><span class=p>]</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span>
+<span class=p>}</span>
+<span class=c1>// slope的比较一般写成交叉相乘的形式
+</span></code></pre></div>
+</section>
+<footer class=article-footer>
+<section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span>
+</section>
+</footer>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css integrity=sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js integrity=sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8 crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js integrity=sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})})</script>
+</article>
+<aside class=related-contents--wrapper>
+<h2 class=section-title>相关文章</h2>
+<div class=related-contents>
+<div class="flex article-list--tile">
+<article>
+<a href=/p/ac%E8%87%AA%E5%8A%A8%E6%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>AC自动机</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/bellman-ford/>
+<div class=article-details>
+<h2 class=article-title>Bellman-Ford</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/cdq%E5%88%86%E6%B2%BB/>
+<div class=article-details>
+<h2 class=article-title>CDQ分治</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/dijkstra/>
+<div class=article-details>
+<h2 class=article-title>Dijkstra</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/fft/>
+<div class=article-details>
+<h2 class=article-title>FFT</h2>
+</div>
+</a>
+</article>
+</div>
+</div>
+</aside>
+<footer class=site-footer>
+<section class=copyright>
+&copy;
+2020 -
+2021 miao
+</section>
+<section class=powerby>
+Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> <br>
+Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a>
+</section>
+</footer>
+<div class=pswp tabindex=-1 role=dialog aria-hidden=true>
+<div class=pswp__bg></div>
+<div class=pswp__scroll-wrap>
+<div class=pswp__container>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+</div>
+<div class="pswp__ui pswp__ui--hidden">
+<div class=pswp__top-bar>
+<div class=pswp__counter></div>
+<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+<div class=pswp__preloader>
+<div class=pswp__preloader__icn>
+<div class=pswp__preloader__cut>
+<div class=pswp__preloader__donut></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+<div class=pswp__share-tooltip></div>
+</div>
+<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+</button>
+<div class=pswp__caption>
+<div class=pswp__caption__center></div>
+</div>
+</div>
+</div>
+</div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous>
+</main>
+<aside class="sidebar right-sidebar sticky">
+<section class="widget archives">
+<div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+</div>
+<h2 class="widget-title section-title">目录</h2>
+<div class=widget--toc>
+<nav id=TableOfContents>
+<ol>
+<li><a href=#单调队列优化>单调队列优化</a></li>
+<li><a href=#斜率优化>斜率优化</a></li>
+</ol>
+</nav>
+</div>
+</section>
+</aside>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const a=document.createElement('link');a.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",a.type="text/css",a.rel="stylesheet",document.head.appendChild(a)})()</script>
+</body>
+</html>

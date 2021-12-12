@@ -1,0 +1,507 @@
+<!doctype html><html lang=en-us>
+<head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Splay 每次访问一个节点后，将该节点旋转到根。均摊下来每次操作的复杂度是 $O(\log(n))$。 理解是关键，因为很多操作都需要自己实现。 函数说明"><title>Splay</title>
+<link rel=canonical href=https://www.miaowh.com/p/splay/>
+<link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="Splay">
+<meta property="og:description" content="Splay 每次访问一个节点后，将该节点旋转到根。均摊下来每次操作的复杂度是 $O(\log(n))$。 理解是关键，因为很多操作都需要自己实现。 函数说明">
+<meta property="og:url" content="https://www.miaowh.com/p/splay/">
+<meta property="og:site_name" content="miao">
+<meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-12-12T00:00:00+00:00"><meta property="article:modified_time" content="2021-12-12T00:00:00+00:00">
+<meta name=twitter:title content="Splay">
+<meta name=twitter:description content="Splay 每次访问一个节点后，将该节点旋转到根。均摊下来每次操作的复杂度是 $O(\log(n))$。 理解是关键，因为很多操作都需要自己实现。 函数说明">
+</head>
+<body class="article-page has-toc">
+<script>(function(){const a='StackColorScheme';localStorage.getItem(a)||localStorage.setItem(a,"auto")})()</script><script>(function(){const b='StackColorScheme',a=localStorage.getItem(b),c=window.matchMedia('(prefers-color-scheme: dark)').matches===!0;a=='dark'||a==='auto'&&c?document.documentElement.dataset.scheme='dark':document.documentElement.dataset.scheme='light'})()</script>
+<div class="container main-container flex
+extended">
+<div id=article-toolbar>
+<a href=https://www.miaowh.com class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg>
+<span>返回</span>
+</a>
+</div>
+<main class="main full-width">
+<article class=main-article>
+<header class=article-header>
+<div class=article-details>
+<header class=article-category>
+<a href=/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/>
+算法与数据结构
+</a>
+</header>
+<h2 class=article-title>
+<a href=/p/splay/>Splay</a>
+</h2>
+<footer class=article-time>
+<div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Dec 12, 2021</time>
+</div>
+</footer>
+</div>
+</header>
+<section class=article-content>
+<h1 id=splay>Splay</h1>
+<p>每次访问一个节点后，将该节点旋转到根。均摊下来每次操作的复杂度是 $O(\log(n))$。</p>
+<p>理解是关键，因为很多操作都需要自己实现。</p>
+<h2 id=函数说明>函数说明</h2>
+<pre tabindex=0><code>int sz[u]: 以u为根的子树的大小
+int ch[u][0/1]: u的左/右儿子，值为0时表示没有该儿子。
+int fa[u]: u的父亲
+int key[u]: u点所代表的权值
+int cnt[u]: u点的数量
+int top: 栈顶（用于内存回收）
+int rt: 根结点
+int tot: 树的大小
+</code></pre><p>注意：
+fa[u] = 0 表示u为根结点
+ch[u][0/1] = 0 表示没有相应的孩子
+任何时候都不应该修改 0 这个结点的值</p>
+<h3 id=newnode>newnode</h3>
+<p>作用：生成一个新结点并返回其编号。
+参数：父亲结点编号，新结点的值。如果父亲结点编号为0，则该结点为根。
+返回值：该结点编号。</p>
+<p>内存回收：把删除的结点放到栈中，建立新节点的使用可以利用已经删除结点的编号。</p>
+<h3 id=get>get</h3>
+<p>作用：判断该结点是其父亲的哪个节点。
+参数：结点编号。
+返回值：0 表示该结点是父亲的左儿子，1 表示该结点是父亲的右儿子。</p>
+<p>单独使用时需要判父亲是否为0。</p>
+<h3 id=rotate>rotate</h3>
+<p>作用：将该结点向祖先旋转一个高度。
+参数：结点编号。
+返回值：无</p>
+<p>单独使用时需要判父亲是否为0。
+对于splay操作来说，pushup(x)是多余的。</p>
+<h3 id=查询比某个数大小的第一个元素>查询比某个数大（小）的第一个元素</h3>
+<p>先将val插入后，查询根的后继（前驱），最后删除 val 即可。但是常数比较大。</p>
+<p>也可以手动寻找。</p>
+<h2 id=模板>模板</h2>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp>
+<span class=k>struct</span> <span class=nc>Splay</span> <span class=p>{</span>
+  <span class=kt>int</span> <span class=n>fa</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>ch</span><span class=p>[</span><span class=n>maxn</span><span class=p>][</span><span class=mi>2</span><span class=p>],</span> <span class=n>stk</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+  <span class=kt>int</span> <span class=n>sz</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>key</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>cnt</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+  <span class=kt>int</span> <span class=n>rt</span><span class=p>,</span> <span class=n>top</span><span class=p>,</span> <span class=n>tot</span><span class=p>;</span>
+
+  <span class=c1>// private
+</span><span class=c1></span>
+  <span class=kt>int</span> <span class=nf>newnode</span><span class=p>(</span><span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=kt>int</span> <span class=n>k</span> <span class=o>=</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>x</span> <span class=o>=</span> <span class=n>top</span> <span class=o>?</span> <span class=n>stk</span><span class=p>[</span><span class=n>top</span><span class=o>--</span><span class=p>]</span> <span class=o>:</span> <span class=o>++</span><span class=n>tot</span><span class=p>;</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>p</span><span class=p>)</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=n>key</span><span class=p>[</span><span class=n>p</span><span class=p>]</span> <span class=o>&lt;</span> <span class=n>k</span><span class=p>]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+    <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>p</span><span class=p>,</span> <span class=n>sz</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>,</span> <span class=n>key</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>k</span><span class=p>,</span> <span class=n>cnt</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=k>return</span> <span class=n>x</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=kt>void</span> <span class=nf>pushup</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>x</span><span class=p>)</span> <span class=k>return</span><span class=p>;</span>
+    <span class=n>sz</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>cnt</span><span class=p>[</span><span class=n>x</span><span class=p>];</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>])</span> <span class=n>sz</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>+=</span> <span class=n>sz</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>]];</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>])</span> <span class=n>sz</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>+=</span> <span class=n>sz</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]];</span>
+  <span class=p>}</span>
+
+  <span class=kt>int</span> <span class=nf>get</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=n>x</span> <span class=o>==</span> <span class=n>ch</span><span class=p>[</span><span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]][</span><span class=mi>1</span><span class=p>];</span> <span class=p>}</span>
+
+  <span class=kt>void</span> <span class=nf>rotate</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>y</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>],</span> <span class=n>z</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>y</span><span class=p>],</span> <span class=n>d</span> <span class=o>=</span> <span class=n>get</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>z</span><span class=p>)</span> <span class=n>ch</span><span class=p>[</span><span class=n>z</span><span class=p>][</span><span class=n>get</span><span class=p>(</span><span class=n>y</span><span class=p>)]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+    <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>z</span><span class=p>,</span> <span class=n>fa</span><span class=p>[</span><span class=n>y</span><span class=p>]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>y</span><span class=p>][</span><span class=n>d</span><span class=p>]</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>d</span> <span class=o>^</span> <span class=mi>1</span><span class=p>],</span> <span class=n>fa</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>y</span><span class=p>][</span><span class=n>d</span><span class=p>]]</span> <span class=o>=</span> <span class=n>y</span><span class=p>;</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>d</span> <span class=o>^</span> <span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>y</span><span class=p>;</span>
+    <span class=n>pushup</span><span class=p>(</span><span class=n>y</span><span class=p>),</span> <span class=n>pushup</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+  <span class=p>}</span>
+
+  <span class=c1>// pubilc
+</span><span class=c1></span>
+  <span class=kt>void</span> <span class=nf>init</span><span class=p>()</span> <span class=p>{</span>
+    <span class=n>rt</span> <span class=o>=</span> <span class=n>top</span> <span class=o>=</span> <span class=n>tot</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>cnt</span><span class=p>[</span><span class=n>rt</span><span class=p>]</span> <span class=o>=</span> <span class=n>sz</span><span class=p>[</span><span class=n>rt</span><span class=p>]</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>rt</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 旋到 goal 的下面
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>splay</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=n>goal</span> <span class=o>=</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>f</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>];</span> <span class=n>f</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>],</span> <span class=n>f</span> <span class=o>!=</span> <span class=n>goal</span><span class=p>;</span> <span class=n>rotate</span><span class=p>(</span><span class=n>x</span><span class=p>))</span> <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>fa</span><span class=p>[</span><span class=n>f</span><span class=p>]</span> <span class=o>!=</span> <span class=n>goal</span><span class=p>)</span> <span class=n>rotate</span><span class=p>(</span><span class=n>get</span><span class=p>(</span><span class=n>x</span><span class=p>)</span> <span class=o>==</span> <span class=n>get</span><span class=p>(</span><span class=n>f</span><span class=p>)</span> <span class=o>?</span> <span class=nl>f</span> <span class=p>:</span> <span class=n>x</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>goal</span><span class=p>)</span> <span class=n>rt</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 查询第k小的节点。 1-index
+</span><span class=c1></span>  <span class=c1>// [1,2,2,3] kth(3) = 2
+</span><span class=c1></span>  <span class=kt>int</span> <span class=nf>kth</span><span class=p>(</span><span class=kt>int</span> <span class=n>k</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=n>rt</span><span class=p>;</span> <span class=n>p</span><span class=p>;)</span> <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>k</span> <span class=o>&lt;=</span> <span class=n>sz</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>]])</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>];</span>
+      <span class=k>else</span> <span class=p>{</span>
+        <span class=n>k</span> <span class=o>-=</span> <span class=n>sz</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>]]</span> <span class=o>+</span> <span class=n>cnt</span><span class=p>[</span><span class=n>p</span><span class=p>];</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>k</span> <span class=o>&lt;=</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+          <span class=n>splay</span><span class=p>(</span><span class=n>p</span><span class=p>);</span>
+          <span class=k>return</span> <span class=n>p</span><span class=p>;</span>
+        <span class=p>}</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>1</span><span class=p>];</span>
+      <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=c1>// k &gt; 树的大小，或者 k &lt; 1
+</span><span class=c1></span>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 查询值小于val的结点数量。 1-index
+</span><span class=c1></span>  <span class=c1>// val不一定存在于Splay中
+</span><span class=c1></span>  <span class=kt>int</span> <span class=nf>rank</span><span class=p>(</span><span class=kt>int</span> <span class=n>val</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>ret</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=n>rt</span><span class=p>;</span> <span class=n>p</span><span class=p>;)</span> <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>val</span> <span class=o>&lt;</span> <span class=n>key</span><span class=p>[</span><span class=n>p</span><span class=p>])</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>];</span>
+      <span class=k>else</span> <span class=p>{</span>
+        <span class=n>ret</span> <span class=o>+=</span> <span class=n>sz</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>]];</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>val</span> <span class=o>==</span> <span class=n>key</span><span class=p>[</span><span class=n>p</span><span class=p>])</span> <span class=p>{</span>
+          <span class=n>splay</span><span class=p>(</span><span class=n>p</span><span class=p>);</span>
+          <span class=k>return</span> <span class=n>ret</span><span class=p>;</span>
+        <span class=p>}</span>
+        <span class=n>ret</span> <span class=o>+=</span> <span class=n>cnt</span><span class=p>[</span><span class=n>p</span><span class=p>];</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>1</span><span class=p>];</span>
+      <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=n>ret</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 插入值为val的节点
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>insert</span><span class=p>(</span><span class=kt>int</span> <span class=n>val</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=n>rt</span><span class=p>,</span> <span class=n>f</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;;</span> <span class=n>f</span> <span class=o>=</span> <span class=n>p</span><span class=p>,</span> <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=n>key</span><span class=p>[</span><span class=n>p</span><span class=p>]</span> <span class=o>&lt;</span> <span class=n>val</span><span class=p>])</span> <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>p</span><span class=p>)</span> <span class=p>{</span>
+        <span class=kt>int</span> <span class=n>x</span> <span class=o>=</span> <span class=n>newnode</span><span class=p>(</span><span class=n>f</span><span class=p>,</span> <span class=n>val</span><span class=p>);</span>
+        <span class=n>pushup</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>pushup</span><span class=p>(</span><span class=n>f</span><span class=p>),</span> <span class=n>splay</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+        <span class=k>break</span><span class=p>;</span>
+      <span class=p>}</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>key</span><span class=p>[</span><span class=n>p</span><span class=p>]</span> <span class=o>==</span> <span class=n>val</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>cnt</span><span class=p>[</span><span class=n>p</span><span class=p>]</span><span class=o>++</span><span class=p>;</span>
+        <span class=n>pushup</span><span class=p>(</span><span class=n>p</span><span class=p>),</span> <span class=n>pushup</span><span class=p>(</span><span class=n>f</span><span class=p>),</span> <span class=n>splay</span><span class=p>(</span><span class=n>p</span><span class=p>);</span>
+        <span class=k>break</span><span class=p>;</span>
+      <span class=p>}</span>
+    <span class=p>}</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 前驱节点，若返回0，则表示无前驱
+</span><span class=c1></span>  <span class=kt>int</span> <span class=nf>pre</span><span class=p>()</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>0</span><span class=p>];</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>1</span><span class=p>])</span> <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>1</span><span class=p>];</span>
+    <span class=k>return</span> <span class=n>p</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=c1>// 后继节点，若返回0，则表示无后继
+</span><span class=c1></span>  <span class=kt>int</span> <span class=nf>nxt</span><span class=p>()</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>];</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>])</span> <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>];</span>
+    <span class=k>return</span> <span class=n>p</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 找到值为val的结点，并将其旋转到根
+</span><span class=c1></span>  <span class=kt>bool</span> <span class=nf>find</span><span class=p>(</span><span class=kt>int</span> <span class=n>val</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=n>rt</span><span class=p>;</span> <span class=n>p</span><span class=p>;)</span> <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>key</span><span class=p>[</span><span class=n>p</span><span class=p>]</span> <span class=o>==</span> <span class=n>val</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>splay</span><span class=p>(</span><span class=n>p</span><span class=p>);</span>
+        <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+      <span class=p>}</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>val</span> <span class=o>&lt;</span> <span class=n>key</span><span class=p>[</span><span class=n>p</span><span class=p>])</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>];</span>
+      <span class=k>else</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>1</span><span class=p>];</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 删除值为val的节点
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>remove</span><span class=p>(</span><span class=kt>int</span> <span class=n>val</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>find</span><span class=p>(</span><span class=n>val</span><span class=p>))</span> <span class=k>return</span><span class=p>;</span>  <span class=c1>// 若找到则将其旋转到根
+</span><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>cnt</span><span class=p>[</span><span class=n>rt</span><span class=p>]</span> <span class=o>&gt;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+      <span class=o>--</span><span class=n>cnt</span><span class=p>[</span><span class=n>rt</span><span class=p>],</span> <span class=n>pushup</span><span class=p>(</span><span class=n>rt</span><span class=p>);</span>
+      <span class=k>return</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=n>stk</span><span class=p>[</span><span class=o>++</span><span class=n>top</span><span class=p>]</span> <span class=o>=</span> <span class=n>rt</span><span class=p>;</span>  <span class=c1>// 内存回收
+</span><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>])</span> <span class=p>{</span>
+      <span class=n>rt</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+      <span class=k>return</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>0</span><span class=p>])</span> <span class=p>{</span>
+      <span class=n>rt</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>];</span>
+      <span class=n>fa</span><span class=p>[</span><span class=n>rt</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+      <span class=k>return</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>])</span> <span class=p>{</span>
+      <span class=n>rt</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>0</span><span class=p>];</span>
+      <span class=n>fa</span><span class=p>[</span><span class=n>rt</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+      <span class=k>return</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=kt>int</span> <span class=n>x</span> <span class=o>=</span> <span class=n>pre</span><span class=p>(),</span> <span class=n>p</span> <span class=o>=</span> <span class=n>rt</span><span class=p>;</span>
+    <span class=n>splay</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+    <span class=n>fa</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>1</span><span class=p>]]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>1</span><span class=p>];</span>
+    <span class=n>pushup</span><span class=p>(</span><span class=n>rt</span><span class=p>);</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 找到第一个严格大于 val 的元素。
+</span><span class=c1></span>  <span class=kt>int</span> <span class=nf>bigger</span><span class=p>(</span><span class=kt>int</span> <span class=n>val</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>ret</span> <span class=o>=</span> <span class=mf>1e9</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=n>rt</span><span class=p>;</span> <span class=n>p</span><span class=p>;)</span> <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>key</span><span class=p>[</span><span class=n>p</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>val</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>ret</span> <span class=o>=</span> <span class=n>min</span><span class=p>(</span><span class=n>ret</span><span class=p>,</span> <span class=n>key</span><span class=p>[</span><span class=n>p</span><span class=p>]);</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>];</span>
+      <span class=p>}</span> <span class=k>else</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>1</span><span class=p>];</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=n>ret</span><span class=p>;</span>
+  <span class=p>}</span>
+<span class=p>}</span> <span class=n>splay</span><span class=p>;</span>
+</code></pre></div><h1 id=splay-维护区间>Splay 维护区间</h1>
+<p>根据区间顺序进行建树，树型决定了偏序关系。与区间内元素的取值无关。</p>
+<p>那么如果我们要处理区间 $[l,r]$ 的信息。我们可以通过先将 $l-1$ 旋转到根，再将 $r+1$ 旋转到根的儿子。这样 $r+1$ 左边这棵树就是区间 $[l,r]$。 为了不特判边界情况，我们可以在首尾各插入一个哨兵节点。</p>
+<p>比如注意哨兵节点，注意 $pushdown$ 和 $pushup$，注意修改的时候别忘了修改父亲。</p>
+<h2 id=代码>代码</h2>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp>
+<span class=cp>#define key_value ch[ch[rt][1]][0]
+</span><span class=cp></span><span class=kt>int</span> <span class=n>a</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+<span class=k>struct</span> <span class=nc>Splay</span> <span class=p>{</span>
+  <span class=kt>int</span> <span class=n>sz</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>ch</span><span class=p>[</span><span class=n>maxn</span><span class=p>][</span><span class=mi>2</span><span class=p>],</span> <span class=n>fa</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+  <span class=kt>int</span> <span class=n>key</span><span class=p>[</span><span class=n>maxn</span><span class=p>],</span> <span class=n>stk</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+  <span class=kt>bool</span> <span class=n>rev</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+  <span class=kt>int</span> <span class=n>rt</span><span class=p>,</span> <span class=n>tot</span><span class=p>;</span>
+
+  <span class=kt>void</span> <span class=nf>pushup</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span> <span class=n>sz</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span> <span class=o>+</span> <span class=n>sz</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>]]</span> <span class=o>+</span> <span class=n>sz</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]];</span> <span class=p>}</span>
+  <span class=kt>void</span> <span class=nf>pushr</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>swap</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>],</span> <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]);</span>
+    <span class=n>rev</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>^=</span> <span class=mi>1</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=kt>void</span> <span class=nf>pushdown</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>rev</span><span class=p>[</span><span class=n>x</span><span class=p>])</span> <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>])</span> <span class=n>pushr</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>]);</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>])</span> <span class=n>pushr</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]);</span>
+      <span class=n>rev</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=p>}</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 1-index
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>init</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>tot</span> <span class=o>=</span> <span class=n>top</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span>
+    <span class=c1>// 首尾插入两个哨兵结点
+</span><span class=c1></span>    <span class=n>rt</span> <span class=o>=</span> <span class=n>newnode</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>newnode</span><span class=p>(</span><span class=n>rt</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+    <span class=n>key_value</span> <span class=o>=</span> <span class=n>build</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=n>n</span><span class=p>,</span> <span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>]);</span>
+    <span class=n>pushup</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>]),</span> <span class=n>pushup</span><span class=p>(</span><span class=n>rt</span><span class=p>);</span>
+  <span class=p>}</span>
+
+  <span class=kt>int</span> <span class=nf>build</span><span class=p>(</span><span class=kt>int</span> <span class=n>l</span><span class=p>,</span> <span class=kt>int</span> <span class=n>r</span><span class=p>,</span> <span class=kt>int</span> <span class=n>p</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>l</span> <span class=o>&gt;</span> <span class=n>r</span><span class=p>)</span> <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>m</span> <span class=o>=</span> <span class=n>l</span> <span class=o>+</span> <span class=n>r</span> <span class=o>&gt;&gt;</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>x</span> <span class=o>=</span> <span class=n>newnode</span><span class=p>(</span><span class=n>p</span><span class=p>,</span> <span class=n>a</span><span class=p>[</span><span class=n>m</span><span class=p>]);</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=n>build</span><span class=p>(</span><span class=n>l</span><span class=p>,</span> <span class=n>m</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>x</span><span class=p>);</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>build</span><span class=p>(</span><span class=n>m</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>r</span><span class=p>,</span> <span class=n>x</span><span class=p>);</span>
+    <span class=n>pushup</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+    <span class=k>return</span> <span class=n>x</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=kt>int</span> <span class=nf>newnode</span><span class=p>(</span><span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=kt>int</span> <span class=n>k</span> <span class=o>=</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>x</span> <span class=o>=</span> <span class=o>++</span><span class=n>tot</span><span class=p>;</span>
+    <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>p</span><span class=p>,</span> <span class=n>sz</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>,</span> <span class=n>key</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>k</span><span class=p>;</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>rev</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=k>return</span> <span class=n>x</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=kt>int</span> <span class=nf>get</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=n>x</span> <span class=o>==</span> <span class=n>ch</span><span class=p>[</span><span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]][</span><span class=mi>1</span><span class=p>];</span> <span class=p>}</span>
+  <span class=kt>void</span> <span class=nf>rotate</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>y</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>],</span> <span class=n>z</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>y</span><span class=p>],</span> <span class=n>d</span> <span class=o>=</span> <span class=n>get</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>z</span><span class=p>)</span> <span class=n>ch</span><span class=p>[</span><span class=n>z</span><span class=p>][</span><span class=n>get</span><span class=p>(</span><span class=n>y</span><span class=p>)]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+    <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>z</span><span class=p>,</span> <span class=n>fa</span><span class=p>[</span><span class=n>y</span><span class=p>]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>y</span><span class=p>][</span><span class=n>d</span><span class=p>]</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>d</span> <span class=o>^</span> <span class=mi>1</span><span class=p>],</span> <span class=n>fa</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>y</span><span class=p>][</span><span class=n>d</span><span class=p>]]</span> <span class=o>=</span> <span class=n>y</span><span class=p>;</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>d</span> <span class=o>^</span> <span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>y</span><span class=p>;</span>
+    <span class=n>pushup</span><span class=p>(</span><span class=n>y</span><span class=p>),</span> <span class=n>pushup</span><span class=p>(</span><span class=n>x</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=kt>void</span> <span class=nf>splay</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=n>goal</span> <span class=o>=</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>top</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>stk</span><span class=p>[</span><span class=o>++</span><span class=n>top</span><span class=p>]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span> <span class=n>i</span> <span class=o>!=</span> <span class=n>goal</span><span class=p>;</span> <span class=n>i</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>i</span><span class=p>])</span> <span class=n>stk</span><span class=p>[</span><span class=o>++</span><span class=n>top</span><span class=p>]</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>top</span><span class=p>;</span> <span class=n>i</span><span class=p>;</span> <span class=n>i</span><span class=o>--</span><span class=p>)</span> <span class=n>pushdown</span><span class=p>(</span><span class=n>stk</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>f</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>];</span> <span class=n>f</span> <span class=o>=</span> <span class=n>fa</span><span class=p>[</span><span class=n>x</span><span class=p>],</span> <span class=n>f</span> <span class=o>!=</span> <span class=n>goal</span><span class=p>;</span> <span class=n>rotate</span><span class=p>(</span><span class=n>x</span><span class=p>))</span> <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>fa</span><span class=p>[</span><span class=n>f</span><span class=p>]</span> <span class=o>!=</span> <span class=n>goal</span><span class=p>)</span> <span class=n>rotate</span><span class=p>(</span><span class=n>get</span><span class=p>(</span><span class=n>x</span><span class=p>)</span> <span class=o>==</span> <span class=n>get</span><span class=p>(</span><span class=n>f</span><span class=p>)</span> <span class=o>?</span> <span class=nl>f</span> <span class=p>:</span> <span class=n>x</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>goal</span><span class=p>)</span> <span class=n>rt</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 返回序列中第 k-1 个节点（有哨兵），1-index
+</span><span class=c1></span>  <span class=kt>int</span> <span class=nf>kth</span><span class=p>(</span><span class=kt>int</span> <span class=n>r</span><span class=p>,</span> <span class=kt>int</span> <span class=n>k</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>pushdown</span><span class=p>(</span><span class=n>r</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=n>t</span> <span class=o>=</span> <span class=n>sz</span><span class=p>[</span><span class=n>ch</span><span class=p>[</span><span class=n>r</span><span class=p>][</span><span class=mi>0</span><span class=p>]]</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>t</span> <span class=o>==</span> <span class=n>k</span><span class=p>)</span> <span class=k>return</span> <span class=n>r</span><span class=p>;</span>
+    <span class=k>return</span> <span class=n>t</span> <span class=o>&gt;</span> <span class=n>k</span> <span class=o>?</span> <span class=n>kth</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>r</span><span class=p>][</span><span class=mi>0</span><span class=p>],</span> <span class=n>k</span><span class=p>)</span> <span class=o>:</span> <span class=n>kth</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>r</span><span class=p>][</span><span class=mi>1</span><span class=p>],</span> <span class=n>k</span> <span class=o>-</span> <span class=n>t</span><span class=p>);</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 选择区间 [l,r], key_value 为区间 [l,r] 的根节点
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>select</span><span class=p>(</span><span class=kt>int</span> <span class=n>l</span><span class=p>,</span> <span class=kt>int</span> <span class=n>r</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>splay</span><span class=p>(</span><span class=n>kth</span><span class=p>(</span><span class=n>rt</span><span class=p>,</span> <span class=n>l</span><span class=p>),</span> <span class=mi>0</span><span class=p>);</span>
+    <span class=n>splay</span><span class=p>(</span><span class=n>kth</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>],</span> <span class=n>r</span> <span class=o>-</span> <span class=n>l</span> <span class=o>+</span> <span class=mi>2</span><span class=p>),</span> <span class=n>rt</span><span class=p>);</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 后继节点
+</span><span class=c1></span>  <span class=kt>int</span> <span class=nf>nxt</span><span class=p>()</span> <span class=p>{</span>
+    <span class=n>pushdown</span><span class=p>(</span><span class=n>rt</span><span class=p>);</span>  <span class=c1>// 记得 pushdown!
+</span><span class=c1></span>    <span class=kt>int</span> <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>];</span>
+    <span class=n>pushdown</span><span class=p>(</span><span class=n>p</span><span class=p>);</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>])</span> <span class=p>{</span>
+      <span class=n>p</span> <span class=o>=</span> <span class=n>ch</span><span class=p>[</span><span class=n>p</span><span class=p>][</span><span class=mi>0</span><span class=p>];</span>
+      <span class=n>pushdown</span><span class=p>(</span><span class=n>p</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=n>p</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 反转区间 [l,r]
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>reverse</span><span class=p>(</span><span class=kt>int</span> <span class=n>l</span><span class=p>,</span> <span class=kt>int</span> <span class=n>r</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>select</span><span class=p>(</span><span class=n>l</span><span class=p>,</span> <span class=n>r</span><span class=p>);</span>
+    <span class=n>pushr</span><span class=p>(</span><span class=n>key_value</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=c1>// 将区间[l,r]切下，移动到p后面。
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>cut</span><span class=p>(</span><span class=kt>int</span> <span class=n>l</span><span class=p>,</span> <span class=kt>int</span> <span class=n>r</span><span class=p>,</span> <span class=kt>int</span> <span class=n>p</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>select</span><span class=p>(</span><span class=n>l</span><span class=p>,</span> <span class=n>r</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=n>tmp</span> <span class=o>=</span> <span class=n>key_value</span><span class=p>;</span>
+    <span class=n>fa</span><span class=p>[</span><span class=n>tmp</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>key_value</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+
+    <span class=n>pushup</span><span class=p>(</span><span class=n>ch</span><span class=p>[</span><span class=n>rt</span><span class=p>][</span><span class=mi>1</span><span class=p>]),</span> <span class=n>pushup</span><span class=p>(</span><span class=n>rt</span><span class=p>);</span>
+    <span class=n>splay</span><span class=p>(</span><span class=n>kth</span><span class=p>(</span><span class=n>rt</span><span class=p>,</span> <span class=n>p</span> <span class=o>+</span> <span class=mi>1</span><span class=p>));</span>
+    <span class=kt>int</span> <span class=n>succ</span> <span class=o>=</span> <span class=n>nxt</span><span class=p>();</span>
+    <span class=n>ch</span><span class=p>[</span><span class=n>succ</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=n>tmp</span><span class=p>;</span>
+    <span class=n>fa</span><span class=p>[</span><span class=n>tmp</span><span class=p>]</span> <span class=o>=</span> <span class=n>succ</span><span class=p>;</span>
+    <span class=n>pushup</span><span class=p>(</span><span class=n>succ</span><span class=p>);</span>
+    <span class=n>splay</span><span class=p>(</span><span class=n>succ</span><span class=p>);</span>
+  <span class=p>}</span>
+
+  <span class=c1>// 输出树的时候记得 pushdown!
+</span><span class=c1></span><span class=p>}</span> <span class=n>splay</span><span class=p>;</span>
+</code></pre></div>
+</section>
+<footer class=article-footer>
+<section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span>
+</section>
+</footer>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css integrity=sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js integrity=sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8 crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js integrity=sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})})</script>
+</article>
+<aside class=related-contents--wrapper>
+<h2 class=section-title>相关文章</h2>
+<div class=related-contents>
+<div class="flex article-list--tile">
+<article>
+<a href=/p/ac%E8%87%AA%E5%8A%A8%E6%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>AC自动机</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/bellman-ford/>
+<div class=article-details>
+<h2 class=article-title>Bellman-Ford</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/cdq%E5%88%86%E6%B2%BB/>
+<div class=article-details>
+<h2 class=article-title>CDQ分治</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/dijkstra/>
+<div class=article-details>
+<h2 class=article-title>Dijkstra</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/fft/>
+<div class=article-details>
+<h2 class=article-title>FFT</h2>
+</div>
+</a>
+</article>
+</div>
+</div>
+</aside>
+<footer class=site-footer>
+<section class=copyright>
+&copy;
+2020 -
+2021 miao
+</section>
+<section class=powerby>
+Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> <br>
+Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a>
+</section>
+</footer>
+<div class=pswp tabindex=-1 role=dialog aria-hidden=true>
+<div class=pswp__bg></div>
+<div class=pswp__scroll-wrap>
+<div class=pswp__container>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+</div>
+<div class="pswp__ui pswp__ui--hidden">
+<div class=pswp__top-bar>
+<div class=pswp__counter></div>
+<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+<div class=pswp__preloader>
+<div class=pswp__preloader__icn>
+<div class=pswp__preloader__cut>
+<div class=pswp__preloader__donut></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+<div class=pswp__share-tooltip></div>
+</div>
+<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+</button>
+<div class=pswp__caption>
+<div class=pswp__caption__center></div>
+</div>
+</div>
+</div>
+</div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous>
+</main>
+<aside class="sidebar right-sidebar sticky">
+<section class="widget archives">
+<div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+</div>
+<h2 class="widget-title section-title">目录</h2>
+<div class=widget--toc>
+<nav id=TableOfContents>
+<ol>
+<li><a href=#函数说明>函数说明</a>
+<ol>
+<li><a href=#newnode>newnode</a></li>
+<li><a href=#get>get</a></li>
+<li><a href=#rotate>rotate</a></li>
+<li><a href=#查询比某个数大小的第一个元素>查询比某个数大（小）的第一个元素</a></li>
+</ol>
+</li>
+<li><a href=#模板>模板</a></li>
+</ol>
+<ol>
+<li><a href=#代码>代码</a></li>
+</ol>
+</nav>
+</div>
+</section>
+</aside>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const a=document.createElement('link');a.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",a.type="text/css",a.rel="stylesheet",document.head.appendChild(a)})()</script>
+</body>
+</html>

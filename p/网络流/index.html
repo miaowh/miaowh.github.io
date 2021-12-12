@@ -1,0 +1,788 @@
+<!doctype html><html lang=en-us>
+<head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="最大流 将 $A$ 看作水源，$G$ 看作汇点，每一条边可以看作管道，每个管道有一个最大容量，每条路上有一个流量。很明显每条管道上的流量是不可能超过管道"><title>网络流</title>
+<link rel=canonical href=https://www.miaowh.com/p/%E7%BD%91%E7%BB%9C%E6%B5%81/>
+<link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="网络流">
+<meta property="og:description" content="最大流 将 $A$ 看作水源，$G$ 看作汇点，每一条边可以看作管道，每个管道有一个最大容量，每条路上有一个流量。很明显每条管道上的流量是不可能超过管道">
+<meta property="og:url" content="https://www.miaowh.com/p/%E7%BD%91%E7%BB%9C%E6%B5%81/">
+<meta property="og:site_name" content="miao">
+<meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-12-12T00:00:00+00:00"><meta property="article:modified_time" content="2021-12-12T00:00:00+00:00">
+<meta name=twitter:title content="网络流">
+<meta name=twitter:description content="最大流 将 $A$ 看作水源，$G$ 看作汇点，每一条边可以看作管道，每个管道有一个最大容量，每条路上有一个流量。很明显每条管道上的流量是不可能超过管道">
+</head>
+<body class="article-page has-toc">
+<script>(function(){const a='StackColorScheme';localStorage.getItem(a)||localStorage.setItem(a,"auto")})()</script><script>(function(){const b='StackColorScheme',a=localStorage.getItem(b),c=window.matchMedia('(prefers-color-scheme: dark)').matches===!0;a=='dark'||a==='auto'&&c?document.documentElement.dataset.scheme='dark':document.documentElement.dataset.scheme='light'})()</script>
+<div class="container main-container flex
+extended">
+<div id=article-toolbar>
+<a href=https://www.miaowh.com class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg>
+<span>返回</span>
+</a>
+</div>
+<main class="main full-width">
+<article class=main-article>
+<header class=article-header>
+<div class=article-details>
+<header class=article-category>
+<a href=/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/>
+算法与数据结构
+</a>
+</header>
+<h2 class=article-title>
+<a href=/p/%E7%BD%91%E7%BB%9C%E6%B5%81/>网络流</a>
+</h2>
+<footer class=article-time>
+<div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Dec 12, 2021</time>
+</div>
+</footer>
+</div>
+</header>
+<section class=article-content>
+<h2 id=最大流>最大流</h2>
+<p><figure>
+<a href="http://img0.ph.126.net/ue5xhXNDrt6fPYoU2QO9XQ==/6632602683933475113.png">
+<img src="http://img0.ph.126.net/ue5xhXNDrt6fPYoU2QO9XQ==/6632602683933475113.png" loading=lazy>
+</a>
+</figure></p>
+<p>将 $A$ 看作水源，$G$ 看作汇点，每一条边可以看作管道，每个管道有一个最大容量，每条路上有一个流量。很明显每条管道上的流量是不可能超过管道的容量的。</p>
+<p>现在水从A源源不断的流入，那么单位时间内流过 $G$ 的最大流量是多少？</p>
+<hr>
+<p>先介绍增广路的概念</p>
+<p><strong>增广路</strong>：一条能从起点走到汇点的路，且这条路没有满流的边。</p>
+<p>求解最大流的过程实际上就是不断寻找增广路的过程，当图中不存在增广路时，也就意味着水流无法再增加，即已经达到最大流。</p>
+<p>但这还存在一些问题，举例说明一下：</p>
+<p><figure>
+<a href=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190813143942.jpg>
+<img src=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190813143942.jpg loading=lazy>
+</a>
+</figure></p>
+<p>首先对 $(s, 1, 2, t)$ 进行增广
+<figure>
+<a href=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190813143947.jpg>
+<img src=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190813143947.jpg loading=lazy>
+</a>
+</figure></p>
+<p>再对 $(s ,2 ,t)$ 进行增广
+<figure>
+<a href=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190813143950.jpg>
+<img src=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190813143950.jpg loading=lazy>
+</a>
+</figure></p>
+<p>我们发现这并不是最大流，因为 $(1,t)$ 这条边没有用到。</p>
+<p>我们希望 $(1,2)$ 这条边的流量可以退回去，然后走 $(1,t)$ 这条边。我们称这个操作称为 <strong>退流</strong>。</p>
+<p>要实现退流，需要在图中加入反向边。反向边的初始容量和流量都为0。</p>
+<p><figure>
+<a href=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190813145255.jpg>
+<img src=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190813145255.jpg loading=lazy>
+</a>
+</figure></p>
+<p>在进行增广的时候，如果某条边的流量增加 $x$，那么要在对应反向边的流量 减去 $x$。 这样的话反向边的流量就会出现负数的情况，我们可以理解为这条边有多少流量可以<strong>退流</strong>。</p>
+<p>以上就是求解最大流的思想，具体的实现方法有很多，接下来会介绍一些常用算法。</p>
+<p><strong>时间复杂度分析</strong>：</p>
+<p>可以证明最多进行 $O(nm)$ 次增广，所以想要优化时间，只能去加速找增广路的速度。如果每次增广都用 $bfs$，则总的复杂度就是 $O(nm^2)$。</p>
+<h3 id=edmondkarp>Edmond—Karp</h3>
+<p>从源点 $s$ 不断的广搜（BFS），记录从 $s$ 到当前点 $i$ 的可增加的水流量 $a[i]$。 如果 $a[t] > 0$ 那么意味着有一条增广路存在，通过记录路径可以更新这条增广路上的流量。</p>
+<p>如果直到搜索结束，$a[t]$ 还是为 $0$，则表示图中没有增广路，此时即可得到最大流。</p>
+<p>时间复杂度为 $O(nm^2)$。</p>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=k>struct</span> <span class=nc>Edge</span><span class=p>{</span>
+    <span class=kt>int</span> <span class=n>from</span><span class=p>,</span><span class=n>to</span><span class=p>,</span><span class=n>cap</span><span class=p>,</span><span class=n>flow</span><span class=p>;</span>
+    <span class=n>Edge</span><span class=p>(</span><span class=kt>int</span> <span class=n>u</span><span class=p>,</span><span class=kt>int</span> <span class=n>v</span><span class=p>,</span><span class=kt>int</span> <span class=n>c</span><span class=p>,</span><span class=kt>int</span> <span class=n>f</span><span class=p>)</span><span class=o>:</span> <span class=n>from</span><span class=p>(</span><span class=n>u</span><span class=p>),</span><span class=n>to</span><span class=p>(</span><span class=n>v</span><span class=p>),</span><span class=n>cap</span><span class=p>(</span><span class=n>c</span><span class=p>),</span><span class=n>flow</span><span class=p>(</span><span class=n>f</span><span class=p>)</span> <span class=p>{}</span>
+<span class=p>};</span>
+<span class=k>struct</span> <span class=nc>EdmonsKarp</span><span class=p>{</span>          <span class=c1>//时间复杂度O(v*E*E)
+</span><span class=c1></span>    <span class=kt>int</span> <span class=n>n</span><span class=p>,</span><span class=n>m</span><span class=p>;</span>
+    <span class=n>vector</span><span class=o>&lt;</span><span class=n>Edge</span><span class=o>&gt;</span> <span class=n>edges</span><span class=p>;</span>     <span class=c1>//边数的两倍
+</span><span class=c1></span>    <span class=n>vector</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>G</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>    <span class=c1>//邻接表，G[i][j]表示节点i的第j条边在e数组中的序号
+</span><span class=c1></span>    <span class=kt>int</span> <span class=n>a</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>            <span class=c1>//起点到i的可改进量
+</span><span class=c1></span>    <span class=kt>int</span> <span class=n>p</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>            <span class=c1>//最短路树上p的入弧编号
+</span><span class=c1></span>
+    <span class=kt>void</span> <span class=nf>init</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>){</span>
+        <span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span><span class=o>=</span><span class=mi>0</span><span class=p>;</span><span class=n>i</span><span class=o>&lt;=</span><span class=n>n</span><span class=p>;</span><span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>G</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>clear</span><span class=p>();</span>
+        <span class=n>edges</span><span class=p>.</span><span class=n>clear</span><span class=p>();</span>
+    <span class=p>}</span>
+
+    <span class=kt>void</span> <span class=nf>AddEdge</span><span class=p>(</span><span class=kt>int</span> <span class=n>from</span><span class=p>,</span><span class=kt>int</span> <span class=n>to</span><span class=p>,</span><span class=kt>int</span> <span class=n>cap</span><span class=p>){</span>
+        <span class=n>edges</span><span class=p>.</span><span class=n>push_back</span><span class=p>(</span><span class=n>Edge</span><span class=p>(</span><span class=n>from</span><span class=p>,</span><span class=n>to</span><span class=p>,</span><span class=n>cap</span><span class=p>,</span><span class=mi>0</span><span class=p>));</span>
+        <span class=n>edges</span><span class=p>.</span><span class=n>push_back</span><span class=p>(</span><span class=n>Edge</span><span class=p>(</span><span class=n>to</span><span class=p>,</span><span class=n>from</span><span class=p>,</span><span class=mi>0</span><span class=p>,</span><span class=mi>0</span><span class=p>));</span>     <span class=c1>//反向弧
+</span><span class=c1></span>        <span class=n>m</span> <span class=o>=</span> <span class=n>edges</span><span class=p>.</span><span class=n>size</span><span class=p>();</span>
+        <span class=n>G</span><span class=p>[</span><span class=n>from</span><span class=p>].</span><span class=n>push_back</span><span class=p>(</span><span class=n>m</span><span class=o>-</span><span class=mi>2</span><span class=p>);</span>
+        <span class=n>G</span><span class=p>[</span><span class=n>to</span><span class=p>].</span><span class=n>push_back</span><span class=p>(</span><span class=n>m</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+    <span class=p>}</span>
+
+    <span class=kt>int</span> <span class=nf>Maxflow</span><span class=p>(</span><span class=kt>int</span> <span class=n>s</span><span class=p>,</span><span class=kt>int</span> <span class=n>t</span><span class=p>){</span>
+        <span class=kt>int</span> <span class=n>flow</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+        <span class=k>for</span><span class=p>(;;){</span>
+            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+            <span class=n>queue</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>Q</span><span class=p>;</span>
+            <span class=n>Q</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>s</span><span class=p>);</span>
+            <span class=n>a</span><span class=p>[</span><span class=n>s</span><span class=p>]</span> <span class=o>=</span> <span class=n>INF</span><span class=p>;</span>
+            <span class=k>while</span><span class=p>(</span><span class=o>!</span><span class=n>Q</span><span class=p>.</span><span class=n>empty</span><span class=p>()){</span>
+                <span class=kt>int</span> <span class=n>x</span> <span class=o>=</span> <span class=n>Q</span><span class=p>.</span><span class=n>front</span><span class=p>();</span><span class=n>Q</span><span class=p>.</span><span class=n>pop</span><span class=p>();</span>
+                <span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span><span class=o>=</span><span class=mi>0</span><span class=p>;</span><span class=n>i</span><span class=o>&lt;</span><span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>].</span><span class=n>size</span><span class=p>();</span><span class=n>i</span><span class=o>++</span><span class=p>){</span>
+                    <span class=n>Edge</span><span class=o>&amp;</span> <span class=n>e</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>i</span><span class=p>]];</span>
+                    <span class=k>if</span><span class=p>(</span><span class=o>!</span><span class=n>a</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]</span> <span class=o>&amp;&amp;</span> <span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>&gt;</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span><span class=p>){</span>     <span class=c1>//!a[e.to] 是了保证不会回退和出现分叉
+</span><span class=c1></span>                        <span class=n>p</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]</span> <span class=o>=</span> <span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>i</span><span class=p>];</span>      <span class=c1>//记录边的编号
+</span><span class=c1></span>                        <span class=n>a</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]</span> <span class=o>=</span> <span class=n>min</span><span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>x</span><span class=p>],</span><span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>-</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span><span class=p>);</span>
+                        <span class=n>Q</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>);</span>
+                    <span class=p>}</span>
+                <span class=p>}</span>
+                <span class=k>if</span><span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>t</span><span class=p>])</span> <span class=k>break</span><span class=p>;</span>         <span class=c1>//走到汇点
+</span><span class=c1></span>            <span class=p>}</span>
+            <span class=k>if</span><span class=p>(</span><span class=o>!</span><span class=n>a</span><span class=p>[</span><span class=n>t</span><span class=p>])</span> <span class=k>break</span><span class=p>;</span>            <span class=c1>//没有一条增广路存在
+</span><span class=c1></span>            <span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>u</span><span class=o>=</span><span class=n>t</span><span class=p>;</span><span class=n>u</span> <span class=o>!=</span> <span class=n>s</span><span class=p>;</span><span class=n>u</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>u</span><span class=p>]].</span><span class=n>from</span><span class=p>){</span>
+                <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>u</span><span class=p>]].</span><span class=n>flow</span> <span class=o>+=</span> <span class=n>a</span><span class=p>[</span><span class=n>t</span><span class=p>];</span>
+                <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>u</span><span class=p>]</span><span class=o>^</span><span class=mi>1</span><span class=p>].</span><span class=n>flow</span> <span class=o>-=</span> <span class=n>a</span><span class=p>[</span><span class=n>t</span><span class=p>];</span>
+            <span class=p>}</span>
+            <span class=n>flow</span> <span class=o>+=</span> <span class=n>a</span><span class=p>[</span><span class=n>t</span><span class=p>];</span>
+        <span class=p>}</span>
+        <span class=k>return</span> <span class=n>flow</span><span class=p>;</span>
+    <span class=p>}</span>
+<span class=p>};</span>
+</code></pre></div><h3 id=dinic>Dinic</h3>
+<p>每次先用 $BFS$ 去构造层次图，然后在层次图上进行 $DFS$ 增广，不断重复这个过程，直到 $BFS$ 无法构建出 $s$ 到 $t$ 的层次图。</p>
+<p>在层次图中，到源点 $s$ 的最近距离相同的点集属于同一层。每次 $DFS$ 增广时，只能从当前层次走到下一个层次，这样保证了从 $s$ 到 $t$ 最多经过 $n-1$ 层。 并且每次 $BFS$ 后，$s$ 到 $t$ 的最大距离至少会增加 $1$。因此最多增广 $n-1$ 次。一次 $DFS$ 增广的复杂度是 $O(nm)$（这里与 $EK$ 中的增广不太一样，$EK$ 中每次增广只是更新一条路径，而 $dinic$ 中每次增广是更新了所有可能的路径）。因此总复杂度为 $O(n^2m)$。</p>
+<p>对于所有容量均为 $1$ 的图，$dinic$ 的复杂度为 $O(min(n^{\frac{2}{3}}, m^{\frac{1}{2}}) m)$。</p>
+<p>对于二分图，$dinic$ 的复杂度为 $O(n^{\frac{1}{2}}m)$。</p>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=k>const</span> <span class=kt>int</span> <span class=n>maxn</span> <span class=o>=</span> <span class=mf>1e4</span> <span class=o>+</span> <span class=mi>6</span><span class=p>;</span>
+<span class=k>const</span> <span class=kt>int</span> <span class=n>INF</span> <span class=o>=</span> <span class=mh>0x3f3f3f3f</span><span class=p>;</span>
+<span class=k>struct</span> <span class=nc>Edge</span> <span class=p>{</span>
+  <span class=kt>int</span> <span class=n>u</span><span class=p>,</span> <span class=n>v</span><span class=p>;</span>
+  <span class=kt>int</span> <span class=n>cap</span><span class=p>,</span> <span class=n>flow</span><span class=p>;</span>
+  <span class=n>Edge</span><span class=p>(</span><span class=kt>int</span> <span class=n>u_</span><span class=p>,</span> <span class=kt>int</span> <span class=n>v_</span><span class=p>,</span> <span class=kt>int</span> <span class=n>cap_</span><span class=p>,</span> <span class=kt>int</span> <span class=n>flow_</span><span class=p>)</span>
+      <span class=o>:</span> <span class=n>u</span><span class=p>(</span><span class=n>u_</span><span class=p>),</span> <span class=n>v</span><span class=p>(</span><span class=n>v_</span><span class=p>),</span> <span class=n>cap</span><span class=p>(</span><span class=n>cap_</span><span class=p>),</span> <span class=n>flow</span><span class=p>(</span><span class=n>flow_</span><span class=p>)</span> <span class=p>{}</span>
+<span class=p>};</span>
+
+<span class=k>struct</span> <span class=nc>Dinic</span> <span class=p>{</span>
+  <span class=kt>int</span> <span class=n>n</span><span class=p>,</span> <span class=n>m</span><span class=p>,</span> <span class=n>s</span><span class=p>,</span> <span class=n>t</span><span class=p>;</span>  <span class=c1>//结点数，边数（包括反向弧），源点编号和汇点编号
+</span><span class=c1></span>  <span class=n>vector</span><span class=o>&lt;</span><span class=n>Edge</span><span class=o>&gt;</span> <span class=n>edges</span><span class=p>;</span>  <span class=c1>//边表。edge[e]和edge[e^1]互为反向弧
+</span><span class=c1></span>  <span class=n>vector</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>G</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>  <span class=c1>//邻接表，G[i][j]表示节点i的第j条边在e数组中的序号
+</span><span class=c1></span>  <span class=kt>bool</span> <span class=n>vis</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>  <span class=c1>// BFS使用
+</span><span class=c1></span>  <span class=kt>int</span> <span class=n>d</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>     <span class=c1>//从起点到i的距离
+</span><span class=c1></span>  <span class=kt>int</span> <span class=n>cur</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>   <span class=c1>//当前弧下标
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>init</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>this</span><span class=o>-&gt;</span><span class=n>n</span> <span class=o>=</span> <span class=n>n</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>G</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>clear</span><span class=p>();</span>
+    <span class=n>edges</span><span class=p>.</span><span class=n>clear</span><span class=p>();</span>
+  <span class=p>}</span>
+  <span class=kt>int</span> <span class=nf>AddEdge</span><span class=p>(</span><span class=kt>int</span> <span class=n>from</span><span class=p>,</span> <span class=kt>int</span> <span class=n>to</span><span class=p>,</span> <span class=kt>int</span> <span class=n>cap</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>edges</span><span class=p>.</span><span class=n>emplace_back</span><span class=p>(</span><span class=n>from</span><span class=p>,</span> <span class=n>to</span><span class=p>,</span> <span class=n>cap</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+    <span class=n>edges</span><span class=p>.</span><span class=n>emplace_back</span><span class=p>(</span><span class=n>to</span><span class=p>,</span> <span class=n>from</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+    <span class=n>m</span> <span class=o>=</span> <span class=n>edges</span><span class=p>.</span><span class=n>size</span><span class=p>();</span>
+    <span class=n>G</span><span class=p>[</span><span class=n>from</span><span class=p>].</span><span class=n>push_back</span><span class=p>(</span><span class=n>m</span> <span class=o>-</span> <span class=mi>2</span><span class=p>);</span>
+    <span class=n>G</span><span class=p>[</span><span class=n>to</span><span class=p>].</span><span class=n>push_back</span><span class=p>(</span><span class=n>m</span> <span class=o>-</span> <span class=mi>1</span><span class=p>);</span>
+    <span class=k>return</span> <span class=n>m</span> <span class=o>-</span> <span class=mi>2</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=kt>bool</span> <span class=nf>BFS</span><span class=p>()</span> <span class=p>{</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=o>++</span><span class=n>i</span><span class=p>)</span> <span class=n>vis</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=nb>false</span><span class=p>,</span> <span class=n>d</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>queue</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>q</span><span class=p>;</span>
+    <span class=n>q</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>s</span><span class=p>);</span>
+    <span class=n>d</span><span class=p>[</span><span class=n>s</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>vis</span><span class=p>[</span><span class=n>s</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=k>while</span> <span class=p>(</span><span class=o>!</span><span class=n>q</span><span class=p>.</span><span class=n>empty</span><span class=p>())</span> <span class=p>{</span>
+      <span class=kt>int</span> <span class=n>x</span> <span class=o>=</span> <span class=n>q</span><span class=p>.</span><span class=n>front</span><span class=p>();</span>
+      <span class=n>q</span><span class=p>.</span><span class=n>pop</span><span class=p>();</span>
+      <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>v</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>].</span><span class=n>size</span><span class=p>();</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>Edge</span><span class=o>&amp;</span> <span class=n>e</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>i</span><span class=p>]];</span>
+        <span class=n>v</span> <span class=o>=</span> <span class=n>e</span><span class=p>.</span><span class=n>v</span><span class=p>;</span>
+        <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>vis</span><span class=p>[</span><span class=n>v</span><span class=p>]</span> <span class=o>&amp;&amp;</span> <span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>&gt;</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span><span class=p>)</span> <span class=p>{</span>
+          <span class=n>vis</span><span class=p>[</span><span class=n>v</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+          <span class=n>d</span><span class=p>[</span><span class=n>v</span><span class=p>]</span> <span class=o>=</span> <span class=n>d</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+          <span class=n>q</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>v</span><span class=p>);</span>
+        <span class=p>}</span>
+      <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=n>vis</span><span class=p>[</span><span class=n>t</span><span class=p>];</span>
+  <span class=p>}</span>
+  <span class=kt>int</span> <span class=nf>DFS</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>,</span> <span class=kt>int</span> <span class=n>a</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>x</span> <span class=o>==</span> <span class=n>t</span> <span class=o>||</span> <span class=n>a</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span> <span class=k>return</span> <span class=n>a</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>flow</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>f</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=o>&amp;</span><span class=n>i</span> <span class=o>=</span> <span class=n>cur</span><span class=p>[</span><span class=n>x</span><span class=p>],</span> <span class=n>v</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>].</span><span class=n>size</span><span class=p>();</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>  <span class=c1>//从上次考虑的弧
+</span><span class=c1></span>      <span class=n>Edge</span><span class=o>&amp;</span> <span class=n>e</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>i</span><span class=p>]];</span>
+      <span class=n>v</span> <span class=o>=</span> <span class=n>e</span><span class=p>.</span><span class=n>v</span><span class=p>;</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>d</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>+</span> <span class=mi>1</span> <span class=o>==</span> <span class=n>d</span><span class=p>[</span><span class=n>v</span><span class=p>]</span> <span class=o>&amp;&amp;</span> <span class=p>(</span><span class=n>f</span> <span class=o>=</span> <span class=n>DFS</span><span class=p>(</span><span class=n>v</span><span class=p>,</span> <span class=n>min</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>-</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span><span class=p>)))</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>e</span><span class=p>.</span><span class=n>flow</span> <span class=o>+=</span> <span class=n>f</span><span class=p>;</span>
+        <span class=n>edges</span><span class=p>[</span><span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>i</span><span class=p>]</span> <span class=o>^</span> <span class=mi>1</span><span class=p>].</span><span class=n>flow</span> <span class=o>-=</span> <span class=n>f</span><span class=p>;</span>
+        <span class=n>flow</span> <span class=o>+=</span> <span class=n>f</span><span class=p>;</span>
+        <span class=n>a</span> <span class=o>-=</span> <span class=n>f</span><span class=p>;</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>a</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span> <span class=k>break</span><span class=p>;</span>
+      <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=n>flow</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=kt>int</span> <span class=nf>Maxflow</span><span class=p>(</span><span class=kt>int</span> <span class=n>s</span><span class=p>,</span> <span class=kt>int</span> <span class=n>t</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>this</span><span class=o>-&gt;</span><span class=n>s</span> <span class=o>=</span> <span class=n>s</span><span class=p>,</span> <span class=k>this</span><span class=o>-&gt;</span><span class=n>t</span> <span class=o>=</span> <span class=n>t</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>flow</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>BFS</span><span class=p>())</span> <span class=p>{</span>
+      <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>cur</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+      <span class=n>flow</span> <span class=o>+=</span> <span class=n>DFS</span><span class=p>(</span><span class=n>s</span><span class=p>,</span> <span class=n>INF</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=n>flow</span><span class=p>;</span>
+  <span class=p>}</span>
+
+  <span class=kt>int</span> <span class=n>edge_id</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>  <span class=c1>// 每条边的编号
+</span><span class=c1></span>  <span class=n>vector</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>cut</span><span class=p>;</span>    <span class=c1>// 割边的编号
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>findCut</span><span class=p>(</span><span class=kt>int</span> <span class=n>m</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>cut</span><span class=p>.</span><span class=n>clear</span><span class=p>();</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>vis</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>queue</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>q</span><span class=p>;</span>
+    <span class=n>q</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>s</span><span class=p>);</span>
+    <span class=n>vis</span><span class=p>[</span><span class=n>s</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=k>while</span> <span class=p>(</span><span class=o>!</span><span class=n>q</span><span class=p>.</span><span class=n>empty</span><span class=p>())</span> <span class=p>{</span>
+      <span class=kt>int</span> <span class=n>u</span> <span class=o>=</span> <span class=n>q</span><span class=p>.</span><span class=n>front</span><span class=p>();</span>
+      <span class=n>q</span><span class=p>.</span><span class=n>pop</span><span class=p>();</span>
+      <span class=k>for</span> <span class=p>(</span><span class=k>auto</span> <span class=o>&amp;</span><span class=nl>id</span> <span class=p>:</span> <span class=n>G</span><span class=p>[</span><span class=n>u</span><span class=p>])</span> <span class=p>{</span>
+        <span class=k>auto</span> <span class=o>&amp;</span><span class=n>e</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>id</span><span class=p>];</span>
+        <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>vis</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>v</span><span class=p>]</span> <span class=o>&amp;&amp;</span> <span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>&gt;</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span><span class=p>)</span> <span class=p>{</span>
+          <span class=n>vis</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>v</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+          <span class=n>q</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>e</span><span class=p>.</span><span class=n>v</span><span class=p>);</span>
+        <span class=p>}</span>
+      <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>m</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+      <span class=k>auto</span> <span class=o>&amp;</span><span class=n>e</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>edge_id</span><span class=p>[</span><span class=n>i</span><span class=p>]];</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>vis</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>u</span><span class=p>]</span> <span class=o>==</span> <span class=n>vis</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>v</span><span class=p>])</span> <span class=k>continue</span><span class=p>;</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>==</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span><span class=p>)</span> <span class=n>cut</span><span class=p>.</span><span class=n>push_back</span><span class=p>(</span><span class=n>i</span> <span class=o>+</span> <span class=mi>1</span><span class=p>);</span>  <span class=c1>// 1-index
+</span><span class=c1></span>    <span class=p>}</span>
+  <span class=p>}</span>
+<span class=p>};</span>
+</code></pre></div><h3 id=isap>ISAP</h3>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=k>const</span> <span class=kt>int</span> <span class=n>maxn</span> <span class=o>=</span> <span class=s>&#34;Edit&#34;</span><span class=p>;</span>
+<span class=k>struct</span> <span class=nc>ISAP</span> <span class=p>{</span>
+  <span class=kt>int</span> <span class=n>n</span><span class=p>,</span> <span class=n>m</span><span class=p>,</span> <span class=n>s</span><span class=p>,</span> <span class=n>t</span><span class=p>;</span>  <span class=c1>//结点数，边数（包括反向弧），源点编号和汇点编号
+</span><span class=c1></span>  <span class=n>vector</span><span class=o>&lt;</span><span class=n>Edge</span><span class=o>&gt;</span> <span class=n>edges</span><span class=p>;</span>  <span class=c1>//边表。edges[e]和edges[e^1]互为反向弧
+</span><span class=c1></span>  <span class=n>vector</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>G</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>  <span class=c1>//邻接表，G[i][j]表示结点i的第j条边在e数组中的序号
+</span><span class=c1></span>  <span class=kt>bool</span> <span class=n>vis</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>  <span class=c1>// BFS使用
+</span><span class=c1></span>  <span class=kt>int</span> <span class=n>d</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>     <span class=c1>//起点到i的距离
+</span><span class=c1></span>  <span class=kt>int</span> <span class=n>cur</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>   <span class=c1>//当前弧下标
+</span><span class=c1></span>  <span class=kt>int</span> <span class=n>p</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>     <span class=c1>//可增广路上的一条弧
+</span><span class=c1></span>  <span class=kt>int</span> <span class=n>num</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>   <span class=c1>//距离标号计数
+</span><span class=c1></span>  <span class=kt>void</span> <span class=nf>init</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>this</span><span class=o>-&gt;</span><span class=n>n</span> <span class=o>=</span> <span class=n>n</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>G</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>clear</span><span class=p>();</span>
+    <span class=n>edges</span><span class=p>.</span><span class=n>clear</span><span class=p>();</span>
+  <span class=p>}</span>
+  <span class=kt>void</span> <span class=nf>AddEdge</span><span class=p>(</span><span class=kt>int</span> <span class=n>from</span><span class=p>,</span> <span class=kt>int</span> <span class=n>to</span><span class=p>,</span> <span class=kt>int</span> <span class=n>cap</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>edges</span><span class=p>.</span><span class=n>emplace_back</span><span class=p>(</span><span class=n>from</span><span class=p>,</span> <span class=n>to</span><span class=p>,</span> <span class=n>cap</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+    <span class=n>edges</span><span class=p>.</span><span class=n>emplace_back</span><span class=p>(</span><span class=n>to</span><span class=p>,</span> <span class=n>from</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=n>m</span> <span class=o>=</span> <span class=n>edges</span><span class=p>.</span><span class=n>size</span><span class=p>();</span>
+    <span class=n>G</span><span class=p>[</span><span class=n>from</span><span class=p>].</span><span class=n>push_back</span><span class=p>(</span><span class=n>m</span> <span class=o>-</span> <span class=mi>2</span><span class=p>);</span>
+    <span class=n>G</span><span class=p>[</span><span class=n>to</span><span class=p>].</span><span class=n>push_back</span><span class=p>(</span><span class=n>m</span> <span class=o>-</span> <span class=mi>1</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=kt>int</span> <span class=nf>Augumemt</span><span class=p>()</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>x</span> <span class=o>=</span> <span class=n>t</span><span class=p>,</span> <span class=n>a</span> <span class=o>=</span> <span class=n>INF</span><span class=p>;</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>x</span> <span class=o>!=</span> <span class=n>s</span><span class=p>)</span> <span class=p>{</span>
+      <span class=n>Edge</span><span class=o>&amp;</span> <span class=n>e</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>x</span><span class=p>]];</span>
+      <span class=n>a</span> <span class=o>=</span> <span class=n>min</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>-</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span><span class=p>);</span>
+      <span class=n>x</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>x</span><span class=p>]].</span><span class=n>from</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=n>x</span> <span class=o>=</span> <span class=n>t</span><span class=p>;</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>x</span> <span class=o>!=</span> <span class=n>s</span><span class=p>)</span> <span class=p>{</span>
+      <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>x</span><span class=p>]].</span><span class=n>flow</span> <span class=o>+=</span> <span class=n>a</span><span class=p>;</span>
+      <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>^</span> <span class=mi>1</span><span class=p>].</span><span class=n>flow</span> <span class=o>-=</span> <span class=n>a</span><span class=p>;</span>
+      <span class=n>x</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>x</span><span class=p>]].</span><span class=n>from</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=n>a</span><span class=p>;</span>
+  <span class=p>}</span>
+  <span class=kt>void</span> <span class=nf>BFS</span><span class=p>()</span> <span class=p>{</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>vis</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>d</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>queue</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>q</span><span class=p>;</span>
+    <span class=n>q</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>t</span><span class=p>);</span>
+    <span class=n>d</span><span class=p>[</span><span class=n>t</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>vis</span><span class=p>[</span><span class=n>t</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=k>while</span> <span class=p>(</span><span class=o>!</span><span class=n>q</span><span class=p>.</span><span class=n>empty</span><span class=p>())</span> <span class=p>{</span>
+      <span class=kt>int</span> <span class=n>x</span> <span class=o>=</span> <span class=n>q</span><span class=p>.</span><span class=n>front</span><span class=p>();</span>
+      <span class=n>q</span><span class=p>.</span><span class=n>pop</span><span class=p>();</span>
+      <span class=kt>int</span> <span class=n>len</span> <span class=o>=</span> <span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>].</span><span class=n>size</span><span class=p>();</span>
+      <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>len</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>Edge</span><span class=o>&amp;</span> <span class=n>e</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>i</span><span class=p>]</span> <span class=o>^</span> <span class=mi>1</span><span class=p>];</span>
+        <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>vis</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>from</span><span class=p>]</span> <span class=o>&amp;&amp;</span> <span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>&gt;</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span><span class=p>)</span> <span class=p>{</span>
+          <span class=n>vis</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>from</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+          <span class=n>d</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>from</span><span class=p>]</span> <span class=o>=</span> <span class=n>d</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+          <span class=n>q</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>e</span><span class=p>.</span><span class=n>from</span><span class=p>);</span>
+        <span class=p>}</span>
+      <span class=p>}</span>
+    <span class=p>}</span>
+  <span class=p>}</span>
+  <span class=kt>int</span> <span class=nf>Maxflow</span><span class=p>(</span><span class=kt>int</span> <span class=n>s</span><span class=p>,</span> <span class=kt>int</span> <span class=n>t</span><span class=p>)</span> <span class=p>{</span>
+    <span class=k>this</span><span class=o>-&gt;</span><span class=n>s</span> <span class=o>=</span> <span class=n>s</span><span class=p>;</span>
+    <span class=k>this</span><span class=o>-&gt;</span><span class=n>t</span> <span class=o>=</span> <span class=n>t</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>flow</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>BFS</span><span class=p>();</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>num</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>d</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&lt;</span> <span class=n>INF</span><span class=p>)</span> <span class=n>num</span><span class=p>[</span><span class=n>d</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span><span class=o>++</span><span class=p>;</span>
+    <span class=kt>int</span> <span class=n>x</span> <span class=o>=</span> <span class=n>s</span><span class=p>;</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>cur</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>d</span><span class=p>[</span><span class=n>s</span><span class=p>]</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>)</span> <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>x</span> <span class=o>==</span> <span class=n>t</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>flow</span> <span class=o>+=</span> <span class=n>Augumemt</span><span class=p>();</span>
+        <span class=n>x</span> <span class=o>=</span> <span class=n>s</span><span class=p>;</span>
+      <span class=p>}</span>
+      <span class=kt>int</span> <span class=n>ok</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+      <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>cur</span><span class=p>[</span><span class=n>x</span><span class=p>];</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>].</span><span class=n>size</span><span class=p>();</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>Edge</span><span class=o>&amp;</span> <span class=n>e</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>i</span><span class=p>]];</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>&gt;</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span> <span class=o>&amp;&amp;</span> <span class=n>d</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>==</span> <span class=n>d</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+          <span class=n>ok</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+          <span class=n>p</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]</span> <span class=o>=</span> <span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>i</span><span class=p>];</span>
+          <span class=n>cur</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span>
+          <span class=n>x</span> <span class=o>=</span> <span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>;</span>
+          <span class=k>break</span><span class=p>;</span>
+        <span class=p>}</span>
+      <span class=p>}</span>
+      <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>ok</span><span class=p>)</span>  <span class=c1>// Retreat
+</span><span class=c1></span>      <span class=p>{</span>
+        <span class=kt>int</span> <span class=n>m</span> <span class=o>=</span> <span class=n>n</span> <span class=o>-</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>].</span><span class=n>size</span><span class=p>();</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+          <span class=n>Edge</span><span class=o>&amp;</span> <span class=n>e</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>G</span><span class=p>[</span><span class=n>x</span><span class=p>][</span><span class=n>i</span><span class=p>]];</span>
+          <span class=k>if</span> <span class=p>(</span><span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>&gt;</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span><span class=p>)</span> <span class=n>m</span> <span class=o>=</span> <span class=n>min</span><span class=p>(</span><span class=n>m</span><span class=p>,</span> <span class=n>d</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]);</span>
+        <span class=p>}</span>
+        <span class=k>if</span> <span class=p>(</span><span class=o>--</span><span class=n>num</span><span class=p>[</span><span class=n>d</span><span class=p>[</span><span class=n>x</span><span class=p>]]</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span> <span class=k>break</span><span class=p>;</span>  <span class=c1>// gap优化
+</span><span class=c1></span>        <span class=n>num</span><span class=p>[</span><span class=n>d</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=n>m</span> <span class=o>+</span> <span class=mi>1</span><span class=p>]</span><span class=o>++</span><span class=p>;</span>
+        <span class=n>cur</span><span class=p>[</span><span class=n>x</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>x</span> <span class=o>!=</span> <span class=n>s</span><span class=p>)</span> <span class=n>x</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>x</span><span class=p>]].</span><span class=n>from</span><span class=p>;</span>
+      <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=n>flow</span><span class=p>;</span>
+  <span class=p>}</span>
+<span class=p>};</span>
+</code></pre></div><h2 id=最小费用最大流>最小费用最大流</h2>
+<h3 id=思想>思想</h3>
+<p>最小费最大流问题是指：在每条边都有一个权值的时候，使得流量最大时候，权值和最小。</p>
+<p>注意这里的费用（可改进量）指的是单位流量的费用。</p>
+<p>注意图中可以存在负边，但不能存在负圈。</p>
+<h3 id=模板>模板</h3>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=k>struct</span> <span class=nc>Edge</span><span class=p>{</span>
+    <span class=kt>int</span> <span class=n>from</span><span class=p>,</span><span class=n>to</span><span class=p>,</span><span class=n>cap</span><span class=p>,</span><span class=n>flow</span><span class=p>,</span><span class=n>cost</span><span class=p>;</span>
+    <span class=n>Edge</span><span class=p>(</span><span class=kt>int</span> <span class=n>u</span><span class=p>,</span><span class=kt>int</span> <span class=n>v</span><span class=p>,</span><span class=kt>int</span> <span class=n>c</span><span class=p>,</span><span class=kt>int</span> <span class=n>f</span><span class=p>,</span><span class=kt>int</span> <span class=n>w</span><span class=p>)</span><span class=o>:</span><span class=n>from</span><span class=p>(</span><span class=n>u</span><span class=p>),</span><span class=n>to</span><span class=p>(</span><span class=n>v</span><span class=p>),</span><span class=n>cap</span><span class=p>(</span><span class=n>c</span><span class=p>),</span><span class=n>flow</span><span class=p>(</span><span class=n>f</span><span class=p>),</span><span class=n>cost</span><span class=p>(</span><span class=n>w</span><span class=p>)</span> <span class=p>{}</span>
+<span class=p>};</span>
+
+<span class=k>struct</span> <span class=nc>MCMF</span><span class=p>{</span>
+    <span class=kt>int</span> <span class=n>n</span><span class=p>,</span><span class=n>m</span><span class=p>;</span>
+    <span class=n>vector</span><span class=o>&lt;</span><span class=n>Edge</span><span class=o>&gt;</span> <span class=n>edges</span><span class=p>;</span>
+    <span class=n>vector</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>G</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+    <span class=kt>int</span> <span class=n>inq</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>      <span class=c1>//是否在队列中
+</span><span class=c1></span>    <span class=kt>int</span> <span class=n>d</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>        <span class=c1>//bellmanford 到源点距离
+</span><span class=c1></span>    <span class=kt>int</span> <span class=n>p</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>        <span class=c1>//上一条弧
+</span><span class=c1></span>    <span class=kt>int</span> <span class=n>a</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>        <span class=c1>//可改进量
+</span><span class=c1></span>
+    <span class=kt>void</span> <span class=nf>init</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>){</span>
+        <span class=k>this</span><span class=o>-&gt;</span> <span class=n>n</span> <span class=o>=</span> <span class=n>n</span><span class=p>;</span>
+        <span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span><span class=o>=</span><span class=mi>0</span><span class=p>;</span><span class=n>i</span><span class=o>&lt;=</span><span class=n>n</span><span class=p>;</span><span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>G</span><span class=p>[</span><span class=n>i</span><span class=p>].</span><span class=n>clear</span><span class=p>();</span>
+        <span class=n>edges</span><span class=p>.</span><span class=n>clear</span><span class=p>();</span>
+    <span class=p>}</span>
+
+    <span class=kt>void</span> <span class=nf>AddEdge</span><span class=p>(</span><span class=kt>int</span> <span class=n>from</span><span class=p>,</span><span class=kt>int</span> <span class=n>to</span><span class=p>,</span><span class=kt>int</span> <span class=n>cap</span><span class=p>,</span><span class=kt>int</span> <span class=n>cost</span><span class=p>){</span>
+        <span class=n>edges</span><span class=p>.</span><span class=n>push_back</span><span class=p>(</span><span class=n>Edge</span><span class=p>(</span><span class=n>from</span><span class=p>,</span><span class=n>to</span><span class=p>,</span><span class=n>cap</span><span class=p>,</span><span class=mi>0</span><span class=p>,</span><span class=n>cost</span><span class=p>));</span>
+        <span class=n>edges</span><span class=p>.</span><span class=n>push_back</span><span class=p>(</span><span class=n>Edge</span><span class=p>(</span><span class=n>to</span><span class=p>,</span><span class=n>from</span><span class=p>,</span><span class=mi>0</span><span class=p>,</span><span class=mi>0</span><span class=p>,</span><span class=o>-</span><span class=n>cost</span><span class=p>));</span>
+        <span class=n>m</span> <span class=o>=</span> <span class=n>edges</span><span class=p>.</span><span class=n>size</span><span class=p>();</span>
+        <span class=n>G</span><span class=p>[</span><span class=n>from</span><span class=p>].</span><span class=n>push_back</span><span class=p>(</span><span class=n>m</span><span class=o>-</span><span class=mi>2</span><span class=p>);</span>
+        <span class=n>G</span><span class=p>[</span><span class=n>to</span><span class=p>].</span><span class=n>push_back</span><span class=p>(</span><span class=n>m</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+    <span class=p>}</span>
+
+    <span class=kt>bool</span> <span class=nf>BellmanFord</span><span class=p>(</span><span class=kt>int</span> <span class=n>s</span><span class=p>,</span><span class=kt>int</span> <span class=n>t</span><span class=p>,</span><span class=kt>int</span><span class=o>&amp;</span> <span class=n>flow</span><span class=p>,</span><span class=n>ll</span><span class=o>&amp;</span> <span class=n>cost</span><span class=p>){</span>
+        <span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span><span class=o>=</span><span class=mi>0</span><span class=p>;</span><span class=n>i</span><span class=o>&lt;=</span><span class=n>n</span><span class=p>;</span><span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>d</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>INF</span><span class=p>;</span>
+        <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=n>inq</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+        <span class=n>d</span><span class=p>[</span><span class=n>s</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>inq</span><span class=p>[</span><span class=n>s</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>p</span><span class=p>[</span><span class=n>s</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>a</span><span class=p>[</span><span class=n>s</span><span class=p>]</span> <span class=o>=</span> <span class=n>INF</span><span class=p>;</span>
+        <span class=n>queue</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>Q</span><span class=p>;</span>
+        <span class=n>Q</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>s</span><span class=p>);</span>
+        <span class=k>while</span><span class=p>(</span><span class=o>!</span><span class=n>Q</span><span class=p>.</span><span class=n>empty</span><span class=p>()){</span>
+            <span class=kt>int</span> <span class=n>u</span> <span class=o>=</span> <span class=n>Q</span><span class=p>.</span><span class=n>front</span><span class=p>();</span> <span class=n>Q</span><span class=p>.</span><span class=n>pop</span><span class=p>();</span>
+            <span class=n>inq</span><span class=p>[</span><span class=n>u</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+            <span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span><span class=o>=</span><span class=mi>0</span><span class=p>;</span><span class=n>i</span><span class=o>&lt;</span><span class=n>G</span><span class=p>[</span><span class=n>u</span><span class=p>].</span><span class=n>size</span><span class=p>();</span><span class=n>i</span><span class=o>++</span><span class=p>){</span>
+                <span class=n>Edge</span><span class=o>&amp;</span> <span class=n>e</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>G</span><span class=p>[</span><span class=n>u</span><span class=p>][</span><span class=n>i</span><span class=p>]];</span>
+                <span class=k>if</span><span class=p>(</span><span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>&gt;</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span> <span class=o>&amp;&amp;</span> <span class=n>d</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>d</span><span class=p>[</span><span class=n>u</span><span class=p>]</span> <span class=o>+</span> <span class=n>e</span><span class=p>.</span><span class=n>cost</span><span class=p>){</span>
+                    <span class=n>d</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]</span> <span class=o>=</span> <span class=n>d</span><span class=p>[</span><span class=n>u</span><span class=p>]</span> <span class=o>+</span> <span class=n>e</span><span class=p>.</span><span class=n>cost</span><span class=p>;</span>
+                    <span class=n>p</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]</span> <span class=o>=</span> <span class=n>G</span><span class=p>[</span><span class=n>u</span><span class=p>][</span><span class=n>i</span><span class=p>];</span>
+                    <span class=n>a</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]</span> <span class=o>=</span> <span class=n>min</span><span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>u</span><span class=p>],</span> <span class=n>e</span><span class=p>.</span><span class=n>cap</span> <span class=o>-</span> <span class=n>e</span><span class=p>.</span><span class=n>flow</span><span class=p>);</span>
+                    <span class=k>if</span><span class=p>(</span><span class=o>!</span><span class=n>inq</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>])</span> <span class=p>{</span><span class=n>Q</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>);</span> <span class=n>inq</span><span class=p>[</span><span class=n>e</span><span class=p>.</span><span class=n>to</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;}</span>
+                <span class=p>}</span>
+            <span class=p>}</span>
+        <span class=p>}</span>
+        <span class=k>if</span><span class=p>(</span><span class=n>d</span><span class=p>[</span><span class=n>t</span><span class=p>]</span> <span class=o>==</span> <span class=n>INF</span><span class=p>)</span> <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>    <span class=c1>// 当没有可增广的路时退出
+</span><span class=c1></span>        <span class=n>flow</span> <span class=o>+=</span> <span class=n>a</span><span class=p>[</span><span class=n>t</span><span class=p>];</span>
+        <span class=n>cost</span> <span class=o>+=</span> <span class=p>(</span><span class=n>ll</span><span class=p>)</span><span class=n>d</span><span class=p>[</span><span class=n>t</span><span class=p>]</span> <span class=o>*</span> <span class=p>(</span><span class=n>ll</span><span class=p>)</span><span class=n>a</span><span class=p>[</span><span class=n>t</span><span class=p>];</span>
+        <span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>u</span><span class=o>=</span><span class=n>t</span><span class=p>;</span> <span class=n>u</span><span class=o>!=</span> <span class=n>s</span><span class=p>;</span> <span class=n>u</span> <span class=o>=</span> <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>u</span><span class=p>]].</span><span class=n>from</span><span class=p>){</span>
+            <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>u</span><span class=p>]].</span><span class=n>flow</span> <span class=o>+=</span> <span class=n>a</span><span class=p>[</span><span class=n>t</span><span class=p>];</span>
+            <span class=n>edges</span><span class=p>[</span><span class=n>p</span><span class=p>[</span><span class=n>u</span><span class=p>]</span><span class=o>^</span><span class=mi>1</span><span class=p>].</span><span class=n>flow</span> <span class=o>-=</span> <span class=n>a</span><span class=p>[</span><span class=n>t</span><span class=p>];</span>
+        <span class=p>}</span>
+        <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+    <span class=p>}</span>
+
+    <span class=kt>int</span> <span class=nf>MincostMaxflow</span><span class=p>(</span><span class=kt>int</span> <span class=n>s</span><span class=p>,</span><span class=kt>int</span> <span class=n>t</span><span class=p>,</span><span class=n>ll</span><span class=o>&amp;</span> <span class=n>cost</span><span class=p>){</span>
+        <span class=kt>int</span> <span class=n>flow</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>cost</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+        <span class=k>while</span><span class=p>(</span><span class=n>BellmanFord</span><span class=p>(</span><span class=n>s</span><span class=p>,</span><span class=n>t</span><span class=p>,</span><span class=n>flow</span><span class=p>,</span><span class=n>cost</span><span class=p>));</span>
+        <span class=k>return</span> <span class=n>flow</span><span class=p>;</span>
+    <span class=p>}</span>
+<span class=p>};</span>
+</code></pre></div><h2 id=经典建图>经典建图</h2>
+<h3 id=无源汇可行流循环流>无源汇可行流（循环流）</h3>
+<p>每条边的流量都有个<strong>上下界</strong>，并且每个点都要满足<strong>流量平衡</strong>，所以这一定是一个循环流。</p>
+<p><strong>做法</strong>：</p>
+<p>建立附加源点 $ss$，附加汇点 $tt$。</p>
+<p>初始假设每条边都已经有了下界的流量，但这样可能会使得流量不平衡。因此我们需要<strong>调整</strong>一下流量，使得每个点都满足流量平衡的要求。</p>
+<p>建立残余网络，因为默认了每条边都已经拥有了下界的流量，所以每条边的上下界就由 $[low, high]$ 变为了 $[0, high - low]$。</p>
+<p>设 $a[i]$ 表示 $i$ 点流入的流量与流出的流量之差。</p>
+<ul>
+<li>对于 $a[i] > 0$，建立 $(ss, i)$ 容量为 $a[i]$ 的边。</li>
+</ul>
+<blockquote>
+<p>$a[i] > 0$ 表示 $i$ 点流入的流量多于流出的流量，那我们需要在残余网络上表示出来这个多余的流量，因此建立 $(ss,i)$ 的边，表示 $i$ 点会多进入一些流量。如果最后这个边可以跑满，说明多余的流量可以找到出路，从而可以达到流量平衡。</p>
+</blockquote>
+<ul>
+<li>对于 $a[i] &lt; 0$， 建立 $(i,tt)$ 容量为 $-a[i]$ 的边</li>
+</ul>
+<blockquote>
+<p>同理。</p>
+</blockquote>
+<ul>
+<li>对于原图中的边 $(u, v, low, high)$，建立 $(u,v)$ 容量为 $high - low$ 的边。</li>
+</ul>
+<blockquote>
+<p>原因在上面说过了。</p>
+</blockquote>
+<ul>
+<li>跑 $ss$ 到 $tt$ 的最大流，如果从 $ss$ 出去的边（进入 $tt$ 的边）全部满流，则证明有解，否则无解。</li>
+</ul>
+<p>因为这些从 $ss$ 出去的边，都是那些原图中导致了<strong>流量不平衡</strong>的流量，只有修正了这些流量，才能使得原图流量平衡。</p>
+<p>最后每条边的<strong>实际流量 = 下界 + 残余网络上的流量</strong>。</p>
+<p>一道模板题：zoj 2314</p>
+<h3 id=有源汇可行流>有源汇可行流</h3>
+<p>每条边的流量都有个<strong>上下界</strong>，并且除了源点和汇点之外每个点都要满足<strong>流量平衡</strong>。</p>
+<p><strong>做法</strong>：</p>
+<ul>
+<li>
+<p>设源点为 $s$，汇点为 $t$。</p>
+</li>
+<li>
+<p>建立一条 $(t,s)$ 容量为无穷大的边。</p>
+</li>
+<li>
+<p>再按照无源汇可行流的方式建图。</p>
+</li>
+<li>
+<p>跑 $ss$ 到 $tt$ 的最大流，如果从 $ss$ 出去的边（进入 $tt$ 的边）全部满流，则证明有解，否则无解。</p>
+</li>
+</ul>
+<p>有源汇之后，原图就不满足流量平衡了，因为源点和汇点不满足流量平衡。但是因为从源点出发的总流量等于到达汇点的总流量，因此我们可以建立一条 $(t,s)$ 容量为无穷大的边，这样到达汇点的流量就会再流回到源点，从而达到了流量平衡。</p>
+<p>最后 $(t,s)$ 这条边的流量就是原图的<strong>可行流</strong>。</p>
+<p>因为建边的时候，$(s,tt)$ 这条边的上界就是所有从 $s$ 点出发的流量的下界。</p>
+<h3 id=有源汇上下界最大流>有源汇上下界最大流</h3>
+<p>每条边的流量都有个<strong>上下界</strong>，并且除了源点和汇点之外每个点都要满足<strong>流量平衡</strong>，并且希望总流量尽可能的大。</p>
+<p><strong>做法</strong>：</p>
+<ul>
+<li>
+<p>按照有源汇可行流的方式建图。</p>
+</li>
+<li>
+<p>跑 $ss$ 到 $tt$ 的最大流，如果从 $ss$ 出去的边（进入 $tt$ 的边）全部满流，则证明有解，否则无解。</p>
+</li>
+<li>
+<p>再跑 $s$ 到 $t$ 的最大流，得到的流量即为答案。</p>
+</li>
+</ul>
+<p><strong>如何使可行流变为最大流呢</strong>？</p>
+<p>因为每条边的下界都已经满足了，要使得流最大，就要使得残余网络上的流最大。 因此只要跑 $s$ 到 $t$ 的最大流即可。</p>
+<p>那么问题来了：</p>
+<ul>
+<li>会不会有的边退流之后就不满足最后的流量平衡了？</li>
+</ul>
+<p>不会的，因为退流的操作实际上是：如果现在退流到 $p$ 点，那么 $p$ 点需要去找新的路径到达汇点，如果能找到则退流成功，否则退流失败。从结果上看，从 $p$ 点出去的流量并没有改变，因此不会有问题。</p>
+<ul>
+<li>是否需要去掉源点汇点和 $(t,s)$ 这条边？</li>
+</ul>
+<p>实际上不需要去掉附加源点和附加汇点，因为这两个点所连接的边都已经满流了，并且它们都是单向边，因此再次跑 $s$ 到 $t$ 的最大流时附加源汇不会产生任何影响。</p>
+<p>也不需要去掉 $(t,s)$ 这条反向边，因为这条边的流量会退回去。跑完 $ss$ 到 $tt$ 的最大流之后，这条边的流量实际上是<strong>满足下界的可行流</strong>。当我们再次跑 $s$ 到 $t$ 的最大流的时候这条边的流量会退回去，即也会算到答案中，因此不必去掉这条反向边。</p>
+<p>一道模板题：zoj 3229</p>
+<h3 id=有源汇上下界最小流>有源汇上下界最小流</h3>
+<p>每条边的流量都有个<strong>上下界</strong>，并且除了源点和汇点之外每个点都要满足<strong>流量平衡</strong>，并且希望总流量尽可能的小。</p>
+<p><strong>做法</strong>：</p>
+<ul>
+<li>按照无源汇可行流进行建图</li>
+<li>跑 $ss$ 到 $tt$ 的最大流</li>
+<li>建立 $(t,s)$</li>
+<li>再跑 $ss$ 到 $tt$ 的最大流，$(t,s)$ 这条边上的流量就是答案</li>
+</ul>
+<p><strong>为什么有源汇可行流跑出来的不是最小流</strong>？</p>
+<p>如图所示</p>
+<p><figure>
+<a href=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190818140634.jpg>
+<img src=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190818140634.jpg loading=lazy>
+</a>
+</figure></p>
+<p>没有写出来的上下界默认为 $[0, inf]$</p>
+<p>建立残余网络</p>
+<p><figure>
+<a href=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190818140637.jpg>
+<img src=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190818140637.jpg loading=lazy>
+</a>
+</figure></p>
+<p>跑 $ss$ 到 $tt$ 的最大流</p>
+<p><figure>
+<a href=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190818140628.jpg>
+<img src=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/QQ%E5%9B%BE%E7%89%8720190818140628.jpg loading=lazy>
+</a>
+</figure></p>
+<p>可以发现 $(t,s)$ 这条边上的流量是 $5$，也就代表了可行流的大小。但从原图中可以看出，实际上最小的可行流是 $3$。</p>
+<p>问题出在哪里呢？</p>
+<p>$1$ 号点本可以直接走到 $2$ 点然后到达 $tt$ 点，但是它却经过了 $(t,s)$ 这条边绕了一圈才到 $tt$ 点。然而 $(t,s)$ 这条边的流量表示的是最后可行流的大小，所以想要获得最小流，那么应该让通过 $(t,s)$ 边的流量尽可能地少。</p>
+<p>因此我们先不加 $(t,s)$ 这条边，跑一次 $ss$ 到 $tt$ 的最大流，目的就是使那些可以不经过 $(t,s)$ 就可以到达 $tt$ 点的流先流满。然后再加上 $(t,s)$ ，再跑一次 $ss$ 到 $tt$ 的最大流，得到的 $(t,s)$ 边的流量就是答案。</p>
+<p>无解的情况还是和上面一样的判断。</p>
+<p>一道模板题：uva 1440</p>
+<h3 id=无有源汇上下界费用流>无（有）源汇上下界费用流</h3>
+<p>建图方式与对应的可行流是相同的，连接附加源汇的边的费用为 $0$。</p>
+<h3 id=最小割>最小割</h3>
+<p>在有向图 $G$ 中，每条边都有一个权值，有源点 $s$，汇点 $t$。要使得 $s$ 和 $t$ 不连通，所需要去掉的边的集合称为 $G$ 的一个<strong>割</strong>。在所有的<strong>割</strong>中，权值和最小的称为<strong>最小割</strong>。</p>
+<p><strong>定理</strong>：<strong>最大流 = 最小割</strong></p>
+<p>考虑每条从 $s$ 到 $t$ 的流，如果选择割边，那么一定是选这条路上满流的一条边（瓶颈边）。最大流找出了所有的增广路，那么只要切掉每条增广路上的瓶颈边即可，最后割边的总权值就是最大流（因为瓶颈边的流量和权值（容量）相同）。</p>
+<h4 id=输出方案>输出方案</h4>
+<p><strong>满流的边不一定是割边！</strong></p>
+<p>考虑最小割是把 $s$ 和 $t$ 分成了两个不相交的点集。</p>
+<p>因此我们可以从 $s$ 点出发，只走未满流的边，走到的点记 $vis[i] = 1$。</p>
+<p>那么对于所有访问过的点 $(vis[i] = 1)$，如果他有一条满流的边连向为未访问过的点，则这条边就是割边。</p>
+<p>一道模板题： hdu 3251</p>
+<h3 id=最大权闭合子图>最大权闭合子图</h3>
+<p><strong>闭合子图</strong>：有向图 $G$ 中，称点集 $V$ 是 $G$ 的闭合子图，当且仅当从点集 $V$ 中出发的边的终点都在点集 $V$ 中，即 $V$ 中的所有后继都在 $V$ 中。</p>
+<p><strong>最大权闭合子图</strong>：每个点都有一个权值（必须有负数，没有负数的话直接全选），所选的闭合子图中点权和最大，可以不选。</p>
+<p><strong>做法</strong>：</p>
+<ul>
+<li>$s$ 向所有正权点连边，容量为权值。</li>
+<li>所有负权点向 $t$ 连边，容量为权值的绝对值。</li>
+<li>其他的边正常连，容量为正无穷。</li>
+<li>跑 $s$ 到 $t$ 的最大流，答案为所有正权点的权值和减去最大流。</li>
+</ul>
+<p>可以先贪心地把所有的正权点都选上，因为有些正权点的后继中既包含负权点也包含正权点，因此要么我们就把那些负权点选上，要么我就丢弃一些正权点。即我们的答案要不然就是减去一些正权点，要么就是减去一些负权点的绝对值。我们当然希望减去的东西越小越好。这个问题可以转化为一个最小割的模型。</p>
+<p>按照上面的建图方式，大致可以分三种情况：</p>
+<p><strong>第一种</strong>：</p>
+<p><figure>
+<a href=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/%E6%9C%80%E5%A4%A7%E6%9D%83%E9%97%AD%E5%90%88%E5%AD%90%E5%9B%BE3.jpg>
+<img src=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/%E6%9C%80%E5%A4%A7%E6%9D%83%E9%97%AD%E5%90%88%E5%AD%90%E5%9B%BE3.jpg loading=lazy>
+</a>
+</figure></p>
+<p>跑完最大流（最小割）之后，可以看到流量是 $3$，表示要选上这些负权点，这些负权点的影响是 $3$。</p>
+<p><strong>第二种</strong>：</p>
+<p><figure>
+<a href=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/%E6%9C%80%E5%A4%A7%E6%9D%83%E9%97%AD%E5%90%88%E5%AD%90%E5%9B%BE1.jpg>
+<img src=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/%E6%9C%80%E5%A4%A7%E6%9D%83%E9%97%AD%E5%90%88%E5%AD%90%E5%9B%BE1.jpg loading=lazy>
+</a>
+</figure></p>
+<p>对于这张图，跑完最大流（最小割）之后流量是 $5$，表示这个正权点要去掉，他的影响是 $5$。</p>
+<p><strong>第三种</strong>：</p>
+<p><figure>
+<a href=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/%E6%9C%80%E5%A4%A7%E6%9D%83%E9%97%AD%E5%90%88%E5%AD%90%E5%9B%BE4.jpg>
+<img src=https://ybmj-blog-1256173108.cos.ap-shanghai.myqcloud.com/blog-picture/%E6%9C%80%E5%A4%A7%E6%9D%83%E9%97%AD%E5%90%88%E5%AD%90%E5%9B%BE4.jpg loading=lazy>
+</a>
+</figure></p>
+<p>图中存在反向边，但实际上反向边并不会影响结果。</p>
+<p>对于那些没有依赖关系的正权点，是不会割到的（即不会丢弃）。</p>
+<p>对于那些没有依赖关系的负权点，也是不会割到的（即不会选）。</p>
+<h4 id=输出方案-1>输出方案</h4>
+<p>割边只可能是那些连接着源点或汇点的边，因为其他边的容量都是正无穷。</p>
+<p><strong>连接源点的割边就是要舍弃的正权点，连接汇点的割边就是要加入的负权点</strong>。</p>
+<p>一道模板题：洛谷 2762</p>
+<h4 id=推广>推广</h4>
+<p>其实这种建图方式可以解决一类问题：</p>
+<p>每个点都有个权值，现在我可以选择某些点，使得权值和最大。 但是某些点之间可能存在直接或间接的依赖关系，因此选择某个点之后，可能某些点就无法选择了，或者某些点就必须要选择。</p>
+<p>这种类型的都可以使用 最大权闭合子图 的建图方式，只不过中间的边的容量可能不是正无穷。</p>
+<p>割边的意义根据题意来表示，不过无非就是选或不选。</p>
+<p>例题：hdu 3251</p>
+<h3 id=最大密度子图>最大密度子图</h3>
+<p>定义一个无向图 $G = (V,E)$ 的<strong>密度</strong> $D$ 为该图的边数与点数的比值。</p>
+<p>$$D = \frac{|E|}{|V|}$$</p>
+<p><strong>做法</strong>：</p>
+<p>这实际上是一个分数规划问题。我们二分答案 $g$</p>
+<p>设 $h(g) = max \{|E'| - |V'| \times g \} $</p>
+<pre tabindex=0><code>h(g) &lt; 0  -&gt;  g &gt; D
+h(g) &gt; 0  -&gt;  g &lt; D
+</code></pre><p>求解 $h(g)$ 的问题可以转化为求最大闭合子图。</p>
+<p>二分的精度为 $eps = \frac{1}{n\times n}$。</p>
+<p>二分的上下界为 $[0,|E|]$。</p>
+<ul>
+<li>源点向每条边建立容量为 $1$ 的边。</li>
+<li>每条边向其两个顶点建立无穷大的边。</li>
+<li>每个顶点向汇点建立容量为 $g$ 的边。</li>
+<li>跑 $s$ 到 $t$ 的最大流，答案为 $|E| - flow$。</li>
+</ul>
+<p>割边中连接着源点的是<strong>不选的边</strong>，连接着汇点的是<strong>要选的点</strong>。</p>
+<h3 id=拆点与拆边>拆点与拆边</h3>
+<p>朴素的拆点与拆边可以用来保证该点（边）经过不超过 $k$ 次，即节点（边）容量。</p>
+<p>还有一种是类似多重背包的拆点（边）。</p>
+<h4 id=拆点>拆点</h4>
+<h5 id=例题>例题</h5>
+<p>二维网格图上，有 $n$ 个交点上有人。你从基地出发，想要把这 $n$ 个人接回基地，但是你的车最多一次坐两个人。问最少的距离把这n个人接回基地？ $n \leq 24$</p>
+<hr>
+<p>因为一次最多接两个人，那么我们可以<strong>枚举所有的两人组合</strong>。从 $s$ 向每个两人组合连边，容量为 $1$，权值为接回来的距离。然后限制每个人只能接一次，就要把这 $n$ 个人拆点，中间建一条容量为 $1$ 费用为 $0$ 的边。最后每个两人组合 向 其所影响的两个人连边。（还有可能每次只接一个人）</p>
+<h4 id=拆边>拆边</h4>
+<h5 id=例题-1>例题</h5>
+<p>$n$ 个城市，$m$ 条有向路，现在要运送 $k$ 个货物从 $1$ 号城市到 $n$ 号城市。每条路有个系数 $a_i$，和一个流量上限 $c_i$，运送 $x$ 个货物的花费为 $a_ix^2$。现在求运送完成的最小花费。</p>
+<p>$c_i \leq 5$</p>
+<hr>
+<p>因为花费不是线性的，所以没有办法表示单位流量费用。但我们注意到一条路最多运送5个货物，因此我们可以将费用拆开来建边。即拆成：$a,3a,5a,7a,9a$ 这样的费用。</p>
+<h3 id=区间模型>区间模型</h3>
+<h4 id=区间k覆盖>区间K覆盖</h4>
+<p>给定 $n$ 个开区间 $(a_i,b_i)$，每个区间有个权值 $w_i$，每个数字最多被覆盖 $k$ 次。问最大价值？</p>
+<hr>
+<p>数轴上相邻点的容量为 $k$，费用为 $0$。$a_i$ 到 $b_i$ 的容量为 $1$，价值为$-w_i$。跑一遍最小费用最大流即可。</p>
+<p>对于点数多，区间少的情况可以离散化。</p>
+<p>模板题 poj3680</p>
+</section>
+<footer class=article-footer>
+<section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span>
+</section>
+</footer>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css integrity=sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js integrity=sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8 crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js integrity=sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})})</script>
+</article>
+<aside class=related-contents--wrapper>
+<h2 class=section-title>相关文章</h2>
+<div class=related-contents>
+<div class="flex article-list--tile">
+<article>
+<a href=/p/ac%E8%87%AA%E5%8A%A8%E6%9C%BA/>
+<div class=article-details>
+<h2 class=article-title>AC自动机</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/bellman-ford/>
+<div class=article-details>
+<h2 class=article-title>Bellman-Ford</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/cdq%E5%88%86%E6%B2%BB/>
+<div class=article-details>
+<h2 class=article-title>CDQ分治</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/dijkstra/>
+<div class=article-details>
+<h2 class=article-title>Dijkstra</h2>
+</div>
+</a>
+</article>
+<article>
+<a href=/p/fft/>
+<div class=article-details>
+<h2 class=article-title>FFT</h2>
+</div>
+</a>
+</article>
+</div>
+</div>
+</aside>
+<footer class=site-footer>
+<section class=copyright>
+&copy;
+2020 -
+2021 miao
+</section>
+<section class=powerby>
+Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> <br>
+Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a>
+</section>
+</footer>
+<div class=pswp tabindex=-1 role=dialog aria-hidden=true>
+<div class=pswp__bg></div>
+<div class=pswp__scroll-wrap>
+<div class=pswp__container>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+<div class=pswp__item></div>
+</div>
+<div class="pswp__ui pswp__ui--hidden">
+<div class=pswp__top-bar>
+<div class=pswp__counter></div>
+<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+<div class=pswp__preloader>
+<div class=pswp__preloader__icn>
+<div class=pswp__preloader__cut>
+<div class=pswp__preloader__donut></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+<div class=pswp__share-tooltip></div>
+</div>
+<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+</button>
+<div class=pswp__caption>
+<div class=pswp__caption__center></div>
+</div>
+</div>
+</div>
+</div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous>
+</main>
+<aside class="sidebar right-sidebar sticky">
+<section class="widget archives">
+<div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+</div>
+<h2 class="widget-title section-title">目录</h2>
+<div class=widget--toc>
+<nav id=TableOfContents>
+<ol>
+<li><a href=#最大流>最大流</a>
+<ol>
+<li><a href=#edmondkarp>Edmond—Karp</a></li>
+<li><a href=#dinic>Dinic</a></li>
+<li><a href=#isap>ISAP</a></li>
+</ol>
+</li>
+<li><a href=#最小费用最大流>最小费用最大流</a>
+<ol>
+<li><a href=#思想>思想</a></li>
+<li><a href=#模板>模板</a></li>
+</ol>
+</li>
+<li><a href=#经典建图>经典建图</a>
+<ol>
+<li><a href=#无源汇可行流循环流>无源汇可行流（循环流）</a></li>
+<li><a href=#有源汇可行流>有源汇可行流</a></li>
+<li><a href=#有源汇上下界最大流>有源汇上下界最大流</a></li>
+<li><a href=#有源汇上下界最小流>有源汇上下界最小流</a></li>
+<li><a href=#无有源汇上下界费用流>无（有）源汇上下界费用流</a></li>
+<li><a href=#最小割>最小割</a>
+<ol>
+<li><a href=#输出方案>输出方案</a></li>
+</ol>
+</li>
+<li><a href=#最大权闭合子图>最大权闭合子图</a>
+<ol>
+<li><a href=#输出方案-1>输出方案</a></li>
+<li><a href=#推广>推广</a></li>
+</ol>
+</li>
+<li><a href=#最大密度子图>最大密度子图</a></li>
+<li><a href=#拆点与拆边>拆点与拆边</a>
+<ol>
+<li><a href=#拆点>拆点</a></li>
+<li><a href=#拆边>拆边</a></li>
+</ol>
+</li>
+<li><a href=#区间模型>区间模型</a>
+<ol>
+<li><a href=#区间k覆盖>区间K覆盖</a></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</nav>
+</div>
+</section>
+</aside>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const a=document.createElement('link');a.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",a.type="text/css",a.rel="stylesheet",document.head.appendChild(a)})()</script>
+</body>
+</html>
