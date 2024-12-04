@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tools on Miao</title><link>https://miaowh.github.io/categories/tools/</link><description>Recent content in Tools on Miao</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 04 Oct 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://miaowh.github.io/categories/tools/index.xml" rel="self" type="application/rss+xml"/><item><title>Build your airplane</title><link>https://miaowh.github.io/p/airplane/</link><pubDate>Fri, 04 Oct 2024 00:00:00 +0000</pubDate><guid>https://miaowh.github.io/p/airplane/</guid><description>&lt;h1 id="准备工作">准备工作
-&lt;/h1>&lt;ul>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tools on Miao</title><link>https://miaowh.github.io/categories/tools/</link><description>Recent content in Tools on Miao</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 04 Oct 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://miaowh.github.io/categories/tools/index.xml" rel="self" type="application/rss+xml"/><item><title>Build your airplane</title><link>https://miaowh.github.io/p/airplane/</link><pubDate>Fri, 04 Oct 2024 00:00:00 +0000</pubDate><guid>https://miaowh.github.io/p/airplane/</guid><description>&lt;h2 id="准备工作">准备工作
+&lt;/h2>&lt;ul>
 &lt;li>外面的VPS或者VM（带Public IP），后面统称VM。&lt;/li>
 &lt;li>临时的小飞机：用于查看官网教程，可以直接google V2Ray，官网教程还是比较详细的。可以先看教程，如果遇到问题再来看看这篇文章。&lt;/li>
 &lt;/ul>
-&lt;h2 id="核心技术">核心技术
-&lt;/h2>&lt;ul>
+&lt;h3 id="核心技术">核心技术
+&lt;/h3>&lt;ul>
 &lt;li>V2Ray (VMESS + TLS + gRPC)&lt;/li>
 &lt;/ul>
-&lt;h1 id="组装过程">组装过程
-&lt;/h1>&lt;h2 id="零件组装">零件组装
-&lt;/h2>&lt;p>VM 开一个22端口用于SSH，再开一个随意的端口用于接入你的流量，比如2333。
+&lt;h2 id="组装过程">组装过程
+&lt;/h2>&lt;h3 id="零件组装">零件组装
+&lt;/h3>&lt;p>VM 开一个22端口用于SSH，再开一个随意的端口用于接入你的流量，比如2333。
 SSH到你的VM，按照官网教程下载V2Ray，并配置V2Ray Service Config。
 下面给出了我的配置，这个是选择了gRPC的作为客户端与服务端的通信方式，并且启用了TLS。如果你是第一次设置，其实可以先用官网给出的简单配置，也是能够工作的。只是可能很快就会被封掉，因为我们是有网络长城的，它可以偷看谁在偷偷翻越城墙，然后把ta抓起来（不是。gRPC+TLS这种方式目前应该能够比较好的躲避审查&amp;hellip;吧。配置TLS是需要一些额外操作的，这些官网也都有。gRPC不需要什么额外的配置。&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -90,8 +90,8 @@ SSH到你的VM，按照官网教程下载V2Ray，并配置V2Ray Service Config�
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h2 id="cert自动更新">Cert自动更新
-&lt;/h2>&lt;p>如果你没用TLS，那么可以先跳过这一节。&lt;/p>
+&lt;/div>&lt;h3 id="cert自动更新">Cert自动更新
+&lt;/h3>&lt;p>如果你没用TLS，那么可以先跳过这一节。&lt;/p>
 &lt;p>然后TLS用的证书是每隔一段时间会更新一次的，下面是个脚本可以自动更新证书，然后更新到config中指定的位置。&lt;/p>
 &lt;p>如果你不知道&lt;code>acme.sh&lt;/code>是什么，那么你需要先去看看官网的教程。&lt;/p>
 &lt;p>首先在terminal中输入 &lt;code>vim ~/update-cert.sh&lt;/code>，然后把以下内容写进去：&lt;/p>
@@ -118,8 +118,8 @@ SSH到你的VM，按照官网教程下载V2Ray，并配置V2Ray Service Config�
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>到此service端的配置就做完了。&lt;/p>
-&lt;h2 id="客户端配置">客户端配置
-&lt;/h2>&lt;p>如果你想用PC上网，那么推荐你去github上找V2rayA这个项目，非常简单易用，直接看文档就可以。&lt;/p>
+&lt;h3 id="客户端配置">客户端配置
+&lt;/h3>&lt;p>如果你想用PC上网，那么推荐你去github上找V2rayA这个项目，非常简单易用，直接看文档就可以。&lt;/p>
 &lt;p>如果你想用移动端，那么推荐你去下个Shadowrocket。（IOS的话是需要外区的账号的，可以申请一个，网上教程很多）&lt;/p>
 &lt;h2 id="起飞">起飞
 &lt;/h2>&lt;p>接下来你就可以准备起飞了。&lt;/p>
