@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Miao</title><link>https://miaowh.github.io/</link><description>Recent content on Miao</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 01 Dec 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://miaowh.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>About</title><link>https://miaowh.github.io/about/</link><pubDate>Sun, 01 Dec 2024 00:00:00 +0000</pubDate><guid>https://miaowh.github.io/about/</guid><description>&lt;p>Hi, this is a temporary blog, which will be used to record my daily learning and thoughts.&lt;/p></description></item><item><title>Build your airplane</title><link>https://miaowh.github.io/p/airplane/</link><pubDate>Fri, 04 Oct 2024 00:00:00 +0000</pubDate><guid>https://miaowh.github.io/p/airplane/</guid><description>&lt;h1 id="准备工作">准备工作
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tools on Miao</title><link>https://miaowh.github.io/categories/tools/</link><description>Recent content in Tools on Miao</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 04 Oct 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://miaowh.github.io/categories/tools/index.xml" rel="self" type="application/rss+xml"/><item><title>Build your airplane</title><link>https://miaowh.github.io/p/airplane/</link><pubDate>Fri, 04 Oct 2024 00:00:00 +0000</pubDate><guid>https://miaowh.github.io/p/airplane/</guid><description>&lt;h1 id="准备工作">准备工作
 &lt;/h1>&lt;ul>
 &lt;li>外面的VPS或者VM（带Public IP），后面统称VM。&lt;/li>
 &lt;li>临时的小飞机：用于查看官网教程，可以直接google V2Ray，官网教程还是比较详细的。可以先看教程，如果遇到问题再来看看这篇文章。&lt;/li>
@@ -125,30 +125,4 @@ SSH到你的VM，按照官网教程下载V2Ray，并配置V2Ray Service Config�
 &lt;/h2>&lt;p>接下来你就可以准备起飞了。&lt;/p>
 &lt;p>以下是一些闲言碎语：
 在配置飞机的过程中呢，很重要的一个问题是考虑如何反审查。因为审查方式是一个黑盒，从&lt;a class="link" href="https://gfw.report/publications/usenixsecurity23/zh/" target="_blank" rel="noopener"
->这篇论文&lt;/a>可以看出，目前的测试到的审查手段是非常多样和复杂的。这其中应该有非常多的学者投入到封锁的工作中吧，将这么多的精力放在给自己同胞构建牢笼，美其名曰怕外面不好的思想影响人民。这可能就是为什么别人觉得我们不民主不自由吧，闭关锁国并不是历史&amp;hellip;&lt;/p></description></item><item><title>Archives</title><link>https://miaowh.github.io/archives/</link><pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate><guid>https://miaowh.github.io/archives/</guid><description/></item><item><title>Links</title><link>https://miaowh.github.io/links/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://miaowh.github.io/links/</guid><description>&lt;p>To use this feature, add &lt;code>links&lt;/code> section to frontmatter.&lt;/p>
-&lt;p>This page&amp;rsquo;s frontmatter:&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;span class="lnt">6
-&lt;/span>&lt;span class="lnt">7
-&lt;/span>&lt;span class="lnt">8
-&lt;/span>&lt;span class="lnt">9
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">links&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">title&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">GitHub&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">description&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">GitHub is the world&amp;#39;s largest software development platform.&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">website&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">https://github.com&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">title&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">TypeScript&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">description&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">TypeScript is a typed superset of JavaScript that compiles to plain JavaScript.&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">website&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">https://www.typescriptlang.org&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ts-logo-128.jpg&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;code>image&lt;/code> field accepts both local and external images.&lt;/p></description></item><item><title>Search</title><link>https://miaowh.github.io/search/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://miaowh.github.io/search/</guid><description/></item></channel></rss>
+>这篇论文&lt;/a>可以看出，目前的测试到的审查手段是非常多样和复杂的。这其中应该有非常多的学者投入到封锁的工作中吧，将这么多的精力放在给自己同胞构建牢笼，美其名曰怕外面不好的思想影响人民。这可能就是为什么别人觉得我们不民主不自由吧，闭关锁国并不是历史&amp;hellip;&lt;/p></description></item></channel></rss>
