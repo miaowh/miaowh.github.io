@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>English on Miao</title><link>https://miaowh.github.io/categories/english/</link><description>Recent content in English on Miao</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 15 Dec 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://miaowh.github.io/categories/english/index.xml" rel="self" type="application/rss+xml"/><item><title>English Grammer</title><link>https://miaowh.github.io/p/english-grammer/</link><pubDate>Sun, 15 Dec 2024 00:00:00 +0000</pubDate><guid>https://miaowh.github.io/p/english-grammer/</guid><description>&lt;h2 id="sentence-structure">Sentence Structure
+&lt;/h2>&lt;p>Subject + Verb + Object&lt;/p>
+&lt;p>How many kinds of verbs there are?&lt;/p>
+&lt;h3 id="summary-of-verb-types">&lt;strong>Summary of Verb Types&lt;/strong>:
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>Action Verbs&lt;/strong>: Physical or mental actions.&lt;/li>
+&lt;li>&lt;strong>Linking Verbs&lt;/strong>: Connect subject with a complement.&lt;/li>
+&lt;li>&lt;strong>Auxiliary (Helping) Verbs&lt;/strong>: Help form tenses, questions, etc.&lt;/li>
+&lt;li>&lt;strong>Modal Verbs&lt;/strong>: Express possibility, necessity, or permission.&lt;/li>
+&lt;li>&lt;strong>Transitive Verbs&lt;/strong>: Require an object.&lt;/li>
+&lt;li>&lt;strong>Intransitive Verbs&lt;/strong>: Do not require an object.&lt;/li>
+&lt;li>&lt;strong>Phrasal Verbs&lt;/strong>: Verb + preposition/adverb with a new meaning.&lt;/li>
+&lt;li>&lt;strong>Reflexive Verbs&lt;/strong>: Subject and object are the same.&lt;/li>
+&lt;li>&lt;strong>Irregular Verbs&lt;/strong>: Don’t follow regular conjugation patterns.&lt;/li>
+&lt;li>&lt;strong>Regular Verbs&lt;/strong>: Follow regular conjugation patterns.&lt;/li>
+&lt;li>&lt;strong>Stative Verbs&lt;/strong>: Express states or conditions, not actions.&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;p>之前偶然看到了王垠的一篇关于英语学习的&lt;a class="link" href="https://www.yinwang.org/blog-cn/2018/11/23/grammar" target="_blank" rel="noopener"
+>博客&lt;/a>，其中的理论很有意思。作者认为英语学习最重要的核心是句子结构，而句子的核心是动词。
+作者将句子看作是一个以动词作为函数名的函数方法。比如&lt;code>I eat apple&lt;/code>，可以看作是&lt;code>eat(I, apple)&lt;/code>。
+在理解一个句子时，可以先找到它的&lt;strong>动词&lt;/strong>，再按照固定的“函数模板”找出所对应的“参数”。这样我们就得到了句子的主干，剩下的就是一些修饰词。&lt;/p>
+&lt;p>在这种理解下，我们不需要再去分析句子的结构，比如哪个是表语，哪个是宾补等等。我们只需要关注动词，然后去记忆每个动词的所有用法（或者叫参数）即可。&lt;/p>
+&lt;p>但是这种方法同样适用于疑问句、倒装句和祈使句吗？这还需要进一步思考。&lt;/p>
+&lt;p>系动词：连接主语和表语。
+实义动词：表示具体动作或状态，分为及物和不及物。
+助动词：辅助其他动词构造句子。
+情态动词：表示情态，如可能性、能力等。&lt;/p>
+&lt;h3 id="question-forms">Question Forms
+&lt;/h3>&lt;h4 id="一般疑问句">一般疑问句
+&lt;/h4>&lt;p>主谓宾&lt;/p>
+&lt;p>主系表&lt;/p>
+&lt;p>&lt;code>I eat apple&lt;/code> -&amp;gt; &lt;code>Do you eat apple?&lt;/code>
+询问对方是否有吃苹果的习惯&lt;/p>
+&lt;p>特殊疑问句&lt;/p>
+&lt;p>选择疑问句&lt;/p>
+&lt;p>反义疑问句&lt;/p>
+&lt;p>否定疑问句&lt;/p>
+&lt;h3 id="从句">从句
+&lt;/h3>&lt;h2 id="时态">时态
+&lt;/h2>&lt;p>除了句子结构之外，另一个必要重要的语法概念就是时态。不同的时态会影响句子表达的含义，这是需要学习的。&lt;/p>
+&lt;h2 id="单词">单词
+&lt;/h2>&lt;p>在掌握了英语语法之后，接下来就是需要不断地扩充自己的词汇量。这并不是说我们需要买一本单词书，然后从头背到尾。这种方式效率非常地低。&lt;/p>
+&lt;p>更好的方式是记录平时遇到的生词，以及它们出现的语境。然后每天晚上就可以把它们拿出来学习。首先你可以查询生词对应的&lt;strong>英文释义&lt;/strong>是什么。
+这很重要，因为中文和英文并不是严格一一对应的，单纯去背中文翻译是非常愚蠢的。这时候再结合字典中提供的例句以及你自己记录下的语境，你就大概能明白如何去使用这个单词。&lt;/p>
+&lt;p>如果你日常生活中不会接触到英语，那么你可以发挥你的想象力，去想象一些场景。比如我想要出国买一些东西，我可能会遇到的对话场景是怎么样的。你可以借助现在流行的大语言模型，让对方模仿商家和你对话。&lt;/p>
+&lt;h2 id="结束语">结束语
+&lt;/h2>&lt;p>以上就是学习英语中的一些核心内容，剩下就需要自己去实践了。加油。&lt;/p></description></item></channel></rss>
