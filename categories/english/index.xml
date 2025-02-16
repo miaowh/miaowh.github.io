@@ -28,10 +28,94 @@
 情态动词：表示情态，如可能性、能力等。&lt;/p>
 &lt;h3 id="question-forms">Question Forms
 &lt;/h3>&lt;h4 id="一般疑问句">一般疑问句
-&lt;/h4>&lt;p>主谓宾&lt;/p>
-&lt;p>主系表&lt;/p>
-&lt;p>&lt;code>I eat apple&lt;/code> -&amp;gt; &lt;code>Do you eat apple?&lt;/code>
-询问对方是否有吃苹果的习惯&lt;/p>
+&lt;/h4>&lt;p>一般疑问句指可以简单用 &lt;code>yes&lt;/code> or &lt;code>no&lt;/code> 回答的问句。它是通过对陈述句的&lt;strong>倒装&lt;/strong>实现的，其基本组成形式是将句子中的助动词，情态动词或&lt;code>be&lt;/code>动词提前到句首。&lt;/p>
+&lt;ul>
+&lt;li>You are coming -&amp;gt; Are you coming?&lt;/li>
+&lt;li>I eat apple -&amp;gt; Do you eat apple?&lt;/li>
+&lt;li>She can swim -&amp;gt; Can she swim?&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;p>情态动词是用来表示能力、可能性、请求、建议等的动词，它们不会改变原动词的形式。&lt;/p>
+&lt;p>&lt;strong>Can&lt;/strong>: 用于询问能力、允许、请求或可能性。&lt;/p>
+&lt;ul>
+&lt;li>Can you swim? (你会游泳吗？) – 询问能力。&lt;/li>
+&lt;li>Can I leave early today? (我今天可以早走吗？) – 询问许可。&lt;/li>
+&lt;li>Can it be true? (这有可能是真的吗？) – 询问可能性。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Could&lt;/strong>: 是 can 的过去式，用于表示过去的能力，或用于更委婉的请求或询问。&lt;/p>
+&lt;ul>
+&lt;li>Could you help me? (你能帮我吗？) – 更礼貌的请求。&lt;/li>
+&lt;li>Could she swim when she was young? (她年轻时会游泳吗？) – 询问过去的能力。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Will&lt;/strong>: 用于询问未来的事情，表示愿意、请求或要求。&lt;/p>
+&lt;ul>
+&lt;li>Will you go to the party? (你会去派对吗？) – 询问未来的计划或意图。&lt;/li>
+&lt;li>Will it rain tomorrow? (明天会下雨吗？) – 询问未来的天气。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Would&lt;/strong>: 是 will 的过去式，通常用于更委婉的请求或假设情况。&lt;/p>
+&lt;ul>
+&lt;li>Would you like some tea? (你想喝些茶吗？) – 更礼貌的请求。&lt;/li>
+&lt;li>Would he help me if I asked? (如果我请求，他会帮我吗？) – 假设情况。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Shall&lt;/strong>: 主要用于表示提议、建议，或表达将来发生的事情（在英国英语中使用较多）。&lt;/p>
+&lt;ul>
+&lt;li>Shall we dance? (我们跳舞好吗？) – 提议。&lt;/li>
+&lt;li>Shall I open the window? (我可以打开窗户吗？) – 提建议。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Should&lt;/strong>: 用于表示建议、义务或推测。&lt;/p>
+&lt;ul>
+&lt;li>Should I call him? (我应该给他打电话吗？) – 询问建议。&lt;/li>
+&lt;li>Should it be done this way? (应该这样做吗？) – 询问是否合适。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>May&lt;/strong>: 用于询问许可或表示可能性。&lt;/p>
+&lt;ul>
+&lt;li>May I leave now? (我可以走了吗？) – 询问许可。&lt;/li>
+&lt;li>May I help you? (我可以帮你吗？) – 询问许可或提供帮助。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Might&lt;/strong>: 是 may 的过去式，也可表示较低的可能性。&lt;/p>
+&lt;ul>
+&lt;li>Might she be at home? (她可能在家吗？) – 表示可能性。&lt;/li>
+&lt;li>Might it rain later? (可能会下雨吗？) – 表示较低的可能性。&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;p>助动词本身没有具体的意义，而是用于构成不同的时态、语态和语气。&lt;/p>
+&lt;p>&lt;strong>Do&lt;/strong>: 用于现在时，主语是 I, you, we, they 时。&lt;/p>
+&lt;ul>
+&lt;li>Do you like pizza? (你喜欢比萨吗？) – 一般疑问句。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Does&lt;/strong>: 用于现在时，主语是第三人称单数（he, she, it）时。&lt;/p>
+&lt;ul>
+&lt;li>Does she speak French? (她会说法语吗？)&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Did&lt;/strong>: 用于过去时，表示过去发生的动作。&lt;/p>
+&lt;ul>
+&lt;li>Did you see the movie? (你看电影了吗？)&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;p>Be 动词是 am, is, are, was, were 等词的总称。它们常用于表示状态或构成进行时和被动语态。&lt;/p>
+&lt;p>&lt;strong>Am, Is, Are&lt;/strong>：用于现在时，构成一般现在时的疑问句。&lt;/p>
+&lt;ul>
+&lt;li>Are you happy? (你开心吗？)&lt;/li>
+&lt;li>Is she coming to the party? (她会来派对吗？)&lt;/li>
+&lt;li>I am not tired. (我不累。)&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Was, Were&lt;/strong>：用于过去时，构成过去时的疑问句。&lt;/p>
+&lt;ul>
+&lt;li>Was he at the meeting? (他在开会吗？)&lt;/li>
+&lt;li>Were they friends? (他们是朋友吗？)&lt;/li>
+&lt;/ul>
+&lt;p>Be动词还可以用于构成进行时和被动语态：&lt;/p>
+&lt;p>进行时：&lt;/p>
+&lt;ul>
+&lt;li>Is he running? (他在跑步吗？)&lt;/li>
+&lt;li>Were they playing football? (他们在踢足球吗？)&lt;/li>
+&lt;/ul>
+&lt;p>被动语态：&lt;/p>
+&lt;ul>
+&lt;li>Is the letter written? (信被写好吗？)&lt;/li>
+&lt;li>Were the dishes washed? (盘子被洗了吗？)&lt;/li>
+&lt;/ul>
+&lt;hr>
 &lt;p>特殊疑问句&lt;/p>
 &lt;p>选择疑问句&lt;/p>
 &lt;p>反义疑问句&lt;/p>
